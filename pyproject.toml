@@ -1,0 +1,23 @@
+[project]
+name = "americasnlp-2026"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "yaduha-ovp",
+    "yaduha-hch",
+    "yaduha[all]",
+]
+
+[tool.uv.workspace]
+members = [
+    "yaduha-2",
+    "yaduha-ovp",
+    "yaduha-hch",
+]
+
+[tool.uv.sources]
+yaduha = { workspace = true, editable = true }
+yaduha-ovp = { workspace = true, editable = true }
+yaduha-hch = { workspace = true, editable = true }
