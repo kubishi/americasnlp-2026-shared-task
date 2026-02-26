@@ -122,6 +122,3 @@ Pilot evaluation on 20 Wixárika image captions using `gpt-4o-mini`:
 - [matplotlib](https://matplotlib.org/): Results visualization
 - [openai](https://github.com/openai/openai-python): Vision model API
 
-## License
-
-See individual submodule repositories for license details.
