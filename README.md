@@ -47,9 +47,11 @@ Three approaches are compared for generating Wixárika captions from images:
 
 | Method | Description |
 |--------|-------------|
-| **structured** | Image sent to OpenAI vision model with structured outputs constrained to `yaduha-hch` sentence types (`SubjectVerbSentence`, `SubjectVerbObjectSentence`). Produces grammatically valid Wixárika via Pydantic models. |
+| **structured** | Image sent to OpenAI vision model with structured outputs constrained to `yaduha-hch` sentence types (`SubjectVerbSentence`, `SubjectVerbObjectSentence`). Outputs are guaranteed to conform to the grammar model defined in `yaduha-hch`. |
 | **translator-pipeline** | Image captioned in English, then translated to Wixárika via `PipelineTranslator` using structured language outputs. |
 | **translator-agentic** | Image captioned in English, then translated to Wixárika via `AgenticTranslator` with vocabulary/grammar system prompt. Free-form generation, less constrained. |
+
+> **Note on linguistic accuracy:** The `yaduha-hch` language package was written using Claude, using the 20 pilot training examples and publicly available grammar references (Iturrioz Leza, ASJP, SIL). The authors do not speak Wixárika. The structured methods guarantee correctness *according to the written grammar model* (valid morphological concatenation, correct person prefixes, etc.), but we cannot guarantee that the model itself accurately represents the language. The grammar and vocabulary should be reviewed by a Wixárika speaker.
 
 ### Running
 
