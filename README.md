@@ -93,13 +93,6 @@ Pilot evaluation on 20 Wixárika image captions using `gpt-4o-mini`:
 - All methods struggle with complex reference sentences. The Wixárika references in the pilot set contain sophisticated morphology (multi-prefix verb forms, clause chains, pragmatic particles) that far exceeds what the current grammar model can generate.
 - ChrF++ scores in the 8-15 range reflect partial lexical overlap rather than fluent translation. This is expected given the minimal grammar and vocabulary (~63 entries) in `yaduha-hch`.
 
-### Key Limitations
-
-- **Vocabulary coverage**: 37 nouns, 13 transitive verbs, 13 intransitive verbs: insufficient for open-domain captioning
-- **Grammar model**: Only models SV and SOV sentence patterns; no subordination, relativization, or complex verb morphology
-- **Agentic instability**: The free-form translator is prone to repetitive degeneration without output length constraints
-- **No Spanish path**: The pipeline currently goes Image -> English -> Wixárika, losing potential cognate/cultural alignment from the Spanish captions
-
 ## TODO
 
 ### Fix agentic translator bugs
