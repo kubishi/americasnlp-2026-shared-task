@@ -87,24 +87,45 @@ Pilot evaluation on 20 Wixárika image captions using `gpt-4o-mini`:
 
 - **translator-pipeline** is the most reliable method, completing all 20 examples with the highest overall mean ChrF++ (10.49).
 - **translator-agentic** achieves the highest individual scores when it works (max 16.02), but frequently hits the output token limit due to repetitive generation. The model tends to loop when producing free-form Wixárika text.
-- **structured** is the most constrained approach. It always produces valid output but is limited by the grammar model's coverage — concepts outside the vocabulary (e.g., "tractor", "green beans", "taco") appear as bracketed English placeholders.
+- **structured** is the most constrained approach. It always produces valid output but is limited by the grammar model's coverage, concepts outside the vocabulary (e.g., "tractor", "green beans", "taco") appear as bracketed English placeholders.
 - All methods struggle with complex reference sentences. The Wixárika references in the pilot set contain sophisticated morphology (multi-prefix verb forms, clause chains, pragmatic particles) that far exceeds what the current grammar model can generate.
 - ChrF++ scores in the 8-15 range reflect partial lexical overlap rather than fluent translation. This is expected given the minimal grammar and vocabulary (~63 entries) in `yaduha-hch`.
 
 ### Key Limitations
 
-- **Vocabulary coverage**: 37 nouns, 13 transitive verbs, 13 intransitive verbs — insufficient for open-domain captioning
+- **Vocabulary coverage**: 37 nouns, 13 transitive verbs, 13 intransitive verbs: insufficient for open-domain captioning
 - **Grammar model**: Only models SV and SOV sentence patterns; no subordination, relativization, or complex verb morphology
 - **Agentic instability**: The free-form translator is prone to repetitive degeneration without output length constraints
 - **No Spanish path**: The pipeline currently goes Image -> English -> Wixárika, losing potential cognate/cultural alignment from the Spanish captions
 
+## TODO
+
+### Fix agentic translator bugs
+- The `translator-agentic` method hits the output token limit on 6/20 examples due to repetitive degeneration (looping phrases like `'i-kwai-t+ háne` endlessly)
+- `OpenAIAgent` was missing `max_tokens` support (now added with 4096 default): need to verify this resolves the failures and push the fix upstream to yaduha
+- Investigate whether the `AgenticTranslator` needs better stop/truncation logic or if the system prompt needs restructuring to prevent loops
+- Pydantic serialization warnings (`PydanticSerializationUnexpectedValue` on `parsed` field): harmless but should be fixed in yaduha's `AgentResponse` type annotations
+
+### Improve the Wixárika language model (`yaduha-hch`)
+- **Expand vocabulary**: Currently only 37 nouns, 13 transitive verbs, 13 intransitive verbs: many image concepts fall back to bracketed English placeholders
+- **Add sentence types**: Only SV and SOV patterns are modeled; add support for locative sentences, possessive constructions, copular sentences, and multi-clause structures
+- **Richer morphology**: Model verb serialization, applicatives, causatives, and more complex prefix stacking (the reference translations use forms like `me yu ku há arit+wat+` that are well beyond current coverage)
+- **Evaluation-driven development**: Use the 20 pilot reference translations as a test suite. Measure ChrF++ improvement as vocabulary and grammar are expanded. Look for additional Wixárika corpora or wordlists (Iturrioz Leza grammars, SIL resources, ASJP) to bootstrap coverage
+
+### Explore other approaches and prepare for additional languages
+- Try different base models (`gpt-4o` vs `gpt-4o-mini`) and compare cost/quality tradeoffs
+- Experiment with few-shot prompting using the pilot training examples as in-context demonstrations
+- Investigate fine-tuning or retrieval-augmented generation for low-resource translation
+- The shared task will announce additional languages: design the evaluation pipeline to be language-agnostic so new `yaduha-*` packages can be plugged in with minimal changes
+- Consider ensemble methods (e.g., structured + agentic with reranking by ChrF++ against back-translations)
+
 ## Dependencies
 
-- [yaduha](https://github.com/kubishi/yaduha-2) — Structured translation framework
-- [yaduha-hch](https://github.com/kubishi/yaduha-hch) — Wixárika language package
-- [sacrebleu](https://github.com/mjpost/sacrebleu) — ChrF++ scoring
-- [matplotlib](https://matplotlib.org/) — Results visualization
-- [openai](https://github.com/openai/openai-python) — Vision model API
+- [yaduha](https://github.com/kubishi/yaduha-2): Structured translation framework
+- [yaduha-hch](https://github.com/kubishi/yaduha-hch): Wixárika language package
+- [sacrebleu](https://github.com/mjpost/sacrebleu): ChrF++ scoring
+- [matplotlib](https://matplotlib.org/): Results visualization
+- [openai](https://github.com/openai/openai-python): Vision model API
 
 ## License
 
