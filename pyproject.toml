@@ -8,11 +8,13 @@ dependencies = [
     "yaduha-ovp",
     "yaduha-hch",
     "yaduha[all]",
+    "sacrebleu>=2.0",
+    "matplotlib>=3.0",
 ]
 
 [tool.uv.workspace]
 members = [
-    "yaduha-2",
+    "yaduha",
     "yaduha-ovp",
     "yaduha-hch",
 ]
