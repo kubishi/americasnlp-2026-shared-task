@@ -24,10 +24,21 @@ Working doc for team coordination. Everyone: please add updates under your own s
 ## Team Status
 
 ### Diego Cuadros — team lead
-- **What I worked on:**
+- **What I worked on (2026-04-15):**
+  - Built `scripts/test_caption.py` — the pipeline connection between a structured sentence and the target language.
+  - Function `translate_structured_sentence(sentence: Dict, language_code: str) -> SentenceTranslationResult` takes a structured sentence dict (the JSON output of `EnglishToSentencesTool`) and a language code, loads the matching language package via `LanguageLoader`, tries each of the language's Pydantic sentence types in order (`model_validate`), and calls `str(sentence)` to render the target-language string — exactly the rendering step used internally by `PipelineTranslator.translate()`.
+  - Defined two Pydantic schemas: `SentenceTranslationRequest` (typed input) and `SentenceTranslationResult` (typed output with `target`, `sentence_type`, `source`, `language_code`).
+  - Verified smoke test against OVP (Owens Valley Paiute) with both SV and SVO sentence dicts; target-language strings rendered correctly.
 - **Current blockers:**
+  - Bracket placeholders: when a vocabulary word has no entry in the language's vocab, `str(sentence)` renders it as `[english_word]` (e.g. `[tractor]`). These brackets will cost ChrF++ points. Need to decide: strip brackets + word, or blank the whole slot.
+  - Function currently tries sentence types in registration order; a dict with both `verb` and `object` fields may match `SubjectVerbSentence` first (Pydantic ignores extra fields by default), silently dropping the object. Need to clarify with Nick whether we should prefer the most-specific type match.
 - **Questions for the team:**
+  - Nick: how do you want to handle the bracket placeholder issue — drop the bracketed token entirely, replace with empty string, or leave as-is and accept the ChrF++ hit?
+  - Azul / Amanda: once you have a language file ready, can you share the `language_code` and a sample structured sentence so I can verify `translate_structured_sentence` works end-to-end for that language?
 - **Next steps:**
+  - Wire `translate_structured_sentence` into the full caption pipeline (image → caption → structured sentence → target string) alongside Nick.
+  - Add blank-out logic for bracketed placeholders per the workflow spec.
+  - Parameterize `scripts/evaluate.py` by `--language` so the same script runs all 5 languages (currently hardcoded to Wixárika).
 
 ### Amanda Avalos
 - **What I worked on:**
