@@ -1,12 +1,16 @@
 [submodule "americasnlp2026"]
 	path = americasnlp2026
 	url = https://github.com/AmericasNLP/americasnlp2026.git
+	branch = main
 [submodule "yaduha-ovp"]
 	path = yaduha-ovp
 	url = https://github.com/kubishi/yaduha-ovp.git
+	branch = main
 [submodule "yaduha-hch"]
 	path = yaduha-hch
 	url = https://github.com/kubishi/yaduha-hch.git
+	branch = main
 [submodule "yaduha"]
 	path = yaduha
 	url = https://github.com/kubishi/yaduha-2.git
+	branch = main
