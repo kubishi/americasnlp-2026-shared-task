@@ -34,6 +34,7 @@ Working doc for team coordination. Everyone: please add updates under your own s
   - Function currently tries sentence types in registration order; a dict with both `verb` and `object` fields may match `SubjectVerbSentence` first (Pydantic ignores extra fields by default), silently dropping the object. Need to clarify with Nick whether we should prefer the most-specific type match.
 - **Questions for the team:**
   - Nick: how do you want to handle the bracket placeholder issue — drop the bracketed token entirely, replace with empty string, or leave as-is and accept the ChrF++ hit?
+      - Response: As we discussed, I think the best way to handle this is to omit the word entirly. We discussed other methods, and wrote them down - but for the time being this is best.  
   - Azul / Amanda: once you have a language file ready, can you share the `language_code` and a sample structured sentence so I can verify `translate_structured_sentence` works end-to-end for that language?
 - **Next steps:**
   - Wire `translate_structured_sentence` into the full caption pipeline (image → caption → structured sentence → target string) alongside Nick.
@@ -54,6 +55,7 @@ Working doc for team coordination. Everyone: please add updates under your own s
 
 ### Nick Leeds
 - **What I worked on:**
+Changed pipeline.py to omit words it can't translate
 - **Current blockers:**
 - **Questions for the team:**
 - **Next steps:**
