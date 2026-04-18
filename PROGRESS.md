@@ -59,6 +59,8 @@ Changed pipeline.py to omit words it can't translate
 - **Current blockers:**
 - **Questions for the team:**
 - **Next steps:**
+- Add `translate_structured_sentence` into the full caption pipeline with Diego. 
+
 
 ### Faezeh Dehghan Tarzjani
 - **What I worked on:**
