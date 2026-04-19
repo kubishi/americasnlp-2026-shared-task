@@ -29,17 +29,28 @@ Working doc for team coordination. Everyone: please add updates under your own s
   - Function `translate_structured_sentence(sentence: Dict, language_code: str) -> SentenceTranslationResult` takes a structured sentence dict (the JSON output of `EnglishToSentencesTool`) and a language code, loads the matching language package via `LanguageLoader`, tries each of the language's Pydantic sentence types in order (`model_validate`), and calls `str(sentence)` to render the target-language string — exactly the rendering step used internally by `PipelineTranslator.translate()`.
   - Defined two Pydantic schemas: `SentenceTranslationRequest` (typed input) and `SentenceTranslationResult` (typed output with `target`, `sentence_type`, `source`, `language_code`).
   - Verified smoke test against OVP (Owens Valley Paiute) with both SV and SVO sentence dicts; target-language strings rendered correctly.
+- **What I worked on (2026-04-19):**
+  - Rewrote `scripts/evaluate.py` to be fully language-agnostic:
+    - Added `LANGUAGE_CONFIG` dict covering all 5 competition languages with yaduha codes, display names, and data file paths for both pilot and dev splits.
+    - Added `--language` and `--split` CLI args; output CSVs now auto-named `results/{language}_{split}_{model}.csv`.
+    - Inlined `translate_structured_sentence` (from `test_caption.py`) directly into `evaluate.py` — replaces `PipelineTranslator` as the rendering step.
+    - Replaced `PipelineTranslator` with new `PipelineCaptioner` class: image → English caption → `EnglishToSentencesTool` → `translate_structured_sentence` per sentence.
+    - Replaced `StructuredCaptioner` to use `translate_structured_sentence` instead of bare `str(sentence)`.
+    - Added `AgenticCaptioner` with language-specific prompt loading via `importlib` (falls back to generic prompt if no `yaduha_{code}.prompts` module exists).
+    - Graceful degradation: if no yaduha package is installed for the selected language, `structured` and `translator-pipeline` are skipped automatically; only `translator-agentic` runs.
+    - Removed all dead imports (`from http import client`, `from pydoc import text`, `from base64 import b64encode`, `import openai`, `import time`).
+    - Fixed stale-CSV crash: reader now validates expected column headers before parsing.
+    - Added `import openai.resources.chat` warm-up to prevent threading deadlock on first API call (was killing examples 1–4 on every run).
+  - Diagnosed bribri image format mismatch: 3 images (`bzd_000.jpg`, `bzd_006.jpg`, `bzd_012.jpg`) have wrong extensions — WebP/unknown bytes stored as `.jpg`, causing OpenAI to reject them with `invalid_image_format`. Fix: normalize all images through Pillow before encoding (pending).
 - **Current blockers:**
-  - Bracket placeholders: when a vocabulary word has no entry in the language's vocab, `str(sentence)` renders it as `[english_word]` (e.g. `[tractor]`). These brackets will cost ChrF++ points. Need to decide: strip brackets + word, or blank the whole slot.
-  - Function currently tries sentence types in registration order; a dict with both `verb` and `object` fields may match `SubjectVerbSentence` first (Pydantic ignores extra fields by default), silently dropping the object. Need to clarify with Nick whether we should prefer the most-specific type match.
+  - Bribri image format mismatch needs fix in `baseline.py` before bribri dev run can complete.
+  - `translate_structured_sentence` + Nick's bracket-omission fix still need an end-to-end test against Wixárika dev via `evaluate.py`.
 - **Questions for the team:**
-  - Nick: how do you want to handle the bracket placeholder issue — drop the bracketed token entirely, replace with empty string, or leave as-is and accept the ChrF++ hit?
-      - Response: As we discussed, I think the best way to handle this is to omit the word entirly. We discussed other methods, and wrote them down - but for the time being this is best.  
-  - Azul / Amanda: once you have a language file ready, can you share the `language_code` and a sample structured sentence so I can verify `translate_structured_sentence` works end-to-end for that language?
+  - Azul / Amanda: once you have a language file ready, share the `language_code` and a sample structured sentence so I can verify `translate_structured_sentence` works end-to-end.
 - **Next steps:**
-  - Wire `translate_structured_sentence` into the full caption pipeline (image → caption → structured sentence → target string) alongside Nick.
-  - Add blank-out logic for bracketed placeholders per the workflow spec.
-  - Parameterize `scripts/evaluate.py` by `--language` so the same script runs all 5 languages (currently hardcoded to Wixárika).
+  - Fix image encoding in `baseline.py` using Pillow to handle mismatched extensions.
+  - Run `evaluate.py --language wixarika --split dev` end-to-end with Nick to validate the full pipeline.
+  - Pull `plot_results.py` and `smoke_test.py` from `remotes/origin/claude/wonderful-ptolemy-Rp9bs` into main (still missing).
 
 ### Amanda Avalos
 - **What I worked on:**
@@ -54,13 +65,17 @@ Working doc for team coordination. Everyone: please add updates under your own s
 - **Next steps:**
 
 ### Nick Leeds
-- **What I worked on:**
-Changed pipeline.py to omit words it can't translate
+- **What I worked on (2026-04-15):**
+  - Modified `pipeline.py` to omit untranslatable words entirely instead of leaving `[english_word]` bracket placeholders — prevents ChrF++ deductions from English tokens in output.
+- **What I worked on (2026-04-19):**
+  - Merged `baseline.py` and `languages.py` from agent branch `claude/wonderful-ptolemy-Rp9bs` into `main` (commit `1a8509c`) — gives the team a working multi-language submission pipeline for all 5 languages.
+  - Ran `baseline.py` against Wixárika dev set (3-shot, gpt-4o-mini); results at `results/baseline/wixarika_dev_gpt-4o-mini_shots3.csv` (50 examples).
 - **Current blockers:**
+  - Remaining 4 languages (bribri, guaraní, maya, nahuatl) not yet baselined — bribri blocked by image format issue; others ready to run.
 - **Questions for the team:**
 - **Next steps:**
-- Add `translate_structured_sentence` into the full caption pipeline with Diego. 
-
+  - Run `evaluate.py --language wixarika --split dev` end-to-end with Diego to validate `translate_structured_sentence` + bracket-omission fix together.
+  - Run baseline for guaraní, maya, nahuatl once bribri image fix is in.
 
 ### Faezeh Dehghan Tarzjani
 - **What I worked on:**
