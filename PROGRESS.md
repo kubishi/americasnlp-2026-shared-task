@@ -70,7 +70,7 @@ Working doc for team coordination. Everyone: please add updates under your own s
 - **What I worked on (2026-04-19):**
   - Merged `baseline.py` and `languages.py` from agent branch `claude/wonderful-ptolemy-Rp9bs` into `main` (commit `1a8509c`) — gives the team a working multi-language submission pipeline for all 5 languages.
   - Ran `baseline.py` against Wixárika dev set (3-shot, gpt-4o-mini); results at `results/baseline/wixarika_dev_gpt-4o-mini_shots3.csv` (50 examples).
-- **What I worked on (2026-04-19):**
+- **What I worked on (2026-04-20):**
   - Added make_submission.py from claude/wonderful-ptolemy-HcIbP, just 'merged' the file not the brach"
 - **Current blockers:**
   - Remaining 4 languages (bribri, guaraní, maya, nahuatl) not yet baselined — bribri blocked by image format issue; others ready to run.
