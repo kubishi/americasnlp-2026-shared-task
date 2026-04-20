@@ -10,8 +10,8 @@ Working doc for team coordination. Everyone: please add updates under your own s
 | 2026-03-01 | Dev sets released (50 ex / language) | done — **not yet integrated** |
 | 2026-04-01 | Surprise language | announced |
 | 2026-04-13 | Orizaba Nahuatl added | announced (yesterday) |
-| **2026-04-20** | **Test sets released** | **6 days out** |
-| **2026-05-01** | **Submission deadline** | **17 days out** |
+| **2026-04-20** | **Test sets released** | **TODAY** |
+| **2026-05-01** | **Submission deadline** | **11 days out** |
 | 2026-05-08 | Winner announcement | — |
 | 2026-05-13 | System description paper due | — |
 | 2026-05-22 | Camera-ready | — |
@@ -146,3 +146,114 @@ Working doc for team coordination. Everyone: please add updates under your own s
 - **By 2026-04-28:** Frozen submission files for all 5 languages.
 - **2026-05-01:** Submit with buffer. Do not push changes on submission day.
 - **2026-05-02 → 05-13:** Paper draft.
+
+---
+
+## Agent Review — 2026-04-20
+
+> **TEST SET DROPS TODAY. T-11 days to submission (May 1). T-23 days to paper (May 13).**
+
+### Δ since last review (2026-04-14 in this file; 2026-04-19 on branch `ecstatic-babbage-0erka`)
+
+| Who | Activity since Apr 14 | Key deliverables |
+|-----|----------------------|-----------------|
+| **Diego** | Rewrote `evaluate.py` to be language-agnostic (Apr 19). Ran 3-shot baseline for **all 5 languages** on dev. Diagnosed bribri image bug. Updated PROGRESS.md. | `evaluate.py` rewrite, 5× dev baseline CSVs |
+| **Nick** | Fixed bracket placeholders in `pipeline.py` (Apr 15). Merged `baseline.py` + `languages.py` from agent branch (Apr 19). Updated PROGRESS.md (Apr 18). | `baseline.py`, `languages.py`, bracket-omit fix |
+| **Amanda** | Zero commits. Zero PROGRESS.md updates. Zero visible activity. | — |
+| **Azul** | Zero commits. Zero PROGRESS.md updates. Zero visible activity. | — |
+| **Faezeh** | Zero commits. Zero PROGRESS.md updates. Zero visible activity. | — |
+| **Jared** | Paper draft in progress (7 pages as of Apr 18, per Slack). Set up Claude daily check-in routine. Posted Issue #1. | Paper draft, daily agent check-ins |
+
+### Baseline results — 3-shot gpt-4o-mini on dev (50 examples/language)
+
+| Language | Our ChrF++ | Organizer Baseline | Gap | Status |
+|----------|-----------|-------------------|-----|--------|
+| Nahuatl | **17.08** | 11.53 | **+5.55** | Above organizer ✓ |
+| Wixárika | **15.94** | 17.77 | −1.83 | Close — improvable |
+| Guaraní | **14.30** | 20.82 | −6.52 | Below — needs work |
+| Bribri | **11.95** | 7.57 | **+4.38** | Above organizer ✓ |
+| Maya | **10.41** | n/a | — | No organizer baseline |
+
+**Key insight:** We are already **above** the organizer baselines for Bribri and Nahuatl with a simple 3-shot prompt. Wixárika is within striking distance. Guaraní is the weakest spot — 6.5 points below organizer. These scores are from `baseline.py` (direct VLM captioning), not the structured/pipeline methods.
+
+### Pilot-set results (evaluate.py — 20 Wixárika examples, gpt-4o-mini)
+
+| Method | Mean ChrF++ | Completions |
+|--------|------------|-------------|
+| structured | 6.94 | 20/20 |
+| translator-pipeline | 10.28 | 20/20 |
+| translator-agentic | 11.28 | 11/20 (9 token-limit failures) |
+
+The structured methods still only have Wixárika data (yaduha-hch) and have not been tested on dev. The agentic method's looping bug remains unfixed.
+
+### What went RIGHT since Apr 14
+
+1. **We now have a working multi-language submission pipeline.** `baseline.py` + `languages.py` + `make_submission.py` (on branch `wonderful-ptolemy-HcIbP`) cover all 5 languages end-to-end.
+2. **Dev-set baselines exist for all 5 languages.** First time we have ChrF++ numbers on the actual evaluation data.
+3. **Diego's evaluate.py rewrite is a major step.** Language-agnostic, graceful degradation, dead imports cleaned up, threading bug fixed.
+4. **Nick's bracket-omit fix** removes English placeholders that were hurting ChrF++.
+5. **Paper draft is underway** (Jared, 7 pages — empirical story, methodology, related work).
+6. **Diego + Nick are collaborating actively** — concrete plan to wire up structured pipeline with bracket fix.
+
+### What still needs to happen
+
+**P0 — THIS WEEKEND (Apr 20–21): Generate submission files**
+
+- [ ] **Merge `make_submission.py` from `claude/wonderful-ptolemy-HcIbP` into main.** This script generates the required submission JSONL format. Without it we cannot submit. — **Owner: Diego or Nick** (5-minute cherry-pick)
+- [ ] **Run `baseline.py` against test sets the moment they drop.** Use the same 3-shot gpt-4o-mini config that produced the dev baselines. Generate submission files for all 5 languages. This is our safety-net submission. — **Owner: Diego**
+- [ ] **Fix bribri image format bug** (3 images with wrong extensions). Add Pillow-based image normalization to `baseline.py`. — **Owner: Diego** (already diagnosed, just needs Pillow encode step)
+- [ ] **Guaraní improvement.** ChrF++ 14.30 vs organizer 20.82 is a 6.5-point gap. Try: (a) increase shots to 5, (b) use gpt-4o instead of gpt-4o-mini, (c) adjust prompt (Guaraní has unique orthography). Even a 3-point gain matters. — **Owner: Nick**
+
+**P1 — Apr 22–28: Iterate on quality**
+
+- [ ] **Run gpt-4o on all 5 languages** and compare ChrF++ vs gpt-4o-mini. If the budget allows, gpt-4o is likely our best single-model strategy. This is the highest-ROI experiment. — **Owner: Diego** (needs Jared's compute budget decision)
+- [ ] **Test evaluate.py structured + pipeline methods on Wixárika dev.** Nick's bracket-omit fix + Diego's refactored pipeline should improve Wixárika ChrF++ beyond the 15.94 baseline. — **Owner: Nick + Diego** (as planned)
+- [ ] **Try `few_shot_baseline.py` from `claude/wonderful-ptolemy-UOQaf`.** Leave-one-out few-shot with CLIP similarity retrieval — might outperform random shot selection. — **Owner: anyone with API access**
+- [ ] **Amanda / Azul / Faezeh:** If you can contribute anything in the next 11 days — prompt engineering, running baselines, error analysis, paper writing — please surface it NOW. Update your PROGRESS.md section or post in Slack. Any contribution helps at this stage.
+
+**P2 — Paper track (parallel, start now)**
+
+- [ ] **Paper outline.** Jared has a 7-page draft. Team members: read it and contribute your section (system description for your component). — **Owner: everyone**
+- [ ] **Ablation table.** Per-method × per-language × per-model ChrF++ on dev. The data is there; just needs formatting. — **Owner: whoever writes the results section**
+- [ ] **Merge `plot_results.py` and `analyze_results.py`** from `claude/wonderful-ptolemy-UOQaf` — needed for figures in the paper.
+
+### Unmerged agent branches — cleanup needed
+
+Several Claude-authored branches have useful scripts that are NOT on main:
+
+| Branch | Key files | Status |
+|--------|-----------|--------|
+| `wonderful-ptolemy-HcIbP` | `make_submission.py`, `evaluate_dev.py`, `cultural_prompts.py` | **Must merge** — submission pipeline |
+| `wonderful-ptolemy-UOQaf` | `plot_results.py`, `analyze_results.py`, `few_shot_baseline.py` | Should merge — paper figures + experiments |
+| `wonderful-ptolemy-Rp9bs` | `baseline.py`, `languages.py`, `smoke_test.py` | Partially merged (baseline+languages on main via Nick) |
+
+**Action: Diego or Nick — cherry-pick `make_submission.py` from `wonderful-ptolemy-HcIbP` today.**
+
+### Code quality notes
+
+- ✅ Dead imports in `evaluate.py` — **fixed** by Diego (Apr 19)
+- ✅ `evaluate.py` language parameterization — **done** by Diego (Apr 19)
+- ⬜ `main.py` is 0 bytes — delete or use as entry point
+- ⬜ `plot_results.py` still missing on main (exists on `wonderful-ptolemy-UOQaf`)
+- ⬜ README still references `plot_results.py` as if it exists
+- ⬜ README needs `git submodule update --init --recursive` in setup instructions
+
+### Questions for Jared (URGENT — decisions needed for submission)
+
+1. **Compute budget:** Can we run gpt-4o for all 5 langs × test? Dev baselines show gpt-4o-mini is competitive on 3/5 languages, so even gpt-4o on just Guaraní + Wixárika (weakest vs organizer) would help.
+2. **Are we submitting all 5 languages?** Agent recommendation: YES — we have baselines for all 5 and beat organizers on 2. No reason to skip any.
+3. **Paper draft:** Can you share the draft link with the team so everyone can contribute? (Slack message Apr 18 had it behind Cloudflare Access.)
+4. **Scope decision on structured methods:** The structured/pipeline methods (yaduha-based) are only available for Wixárika. Should we invest time testing them on dev, or focus all effort on improving the direct-prompt baseline for all 5 languages?
+
+### Revised schedule — final sprint
+
+| Date | Milestone | Owner |
+|------|-----------|-------|
+| **Apr 20 (today)** | Test sets drop. Merge `make_submission.py`. Fix bribri images. | Diego, Nick |
+| **Apr 21** | Run baseline on all 5 test sets. Generate first submission files. | Diego |
+| **Apr 22–24** | gpt-4o experiment. Guaraní prompt tuning. Structured pipeline on Wixárika dev. | Diego, Nick |
+| **Apr 25–27** | Final iteration. Compare methods. Pick best per language. | Diego, Nick |
+| **Apr 28** | Freeze submission files. No code changes after this. | All |
+| **Apr 29–30** | Buffer. Final review. | Diego |
+| **May 1** | Submit. | Diego |
+| **May 2–13** | Paper draft and submission. | All |
