@@ -172,3 +172,86 @@ Working doc for team coordination. Everyone: please add updates under your own s
 - **By 2026-04-28:** Frozen submission files for all 5 languages.
 - **2026-05-01:** Submit with buffer. Do not push changes on submission day.
 - **2026-05-02 → 05-13:** Paper draft.
+
+---
+
+## Agent Review — 2026-04-21
+
+### Status snapshot
+
+**Overall: the system works end-to-end and the LLM-RBMT thesis is showing real signal.** Jared's 2026-04-20 restructuring was transformative — the repo now has a clean CLI, an agent-based language generator, and eval results for all 5 languages on both pipeline and direct baselines. The hard architectural decisions are done. The remaining 10 days are execution.
+
+**ChrF++ results (full dev, N=50 per language, Claude Sonnet 4.5):**
+
+| Language | Pipeline | Direct 3-shot | Best | Δ vs organizer baseline |
+|----------|----------|---------------|------|------------------------|
+| bzd (Bribri) | **10.72** | 9.43 | pipeline +1.29 | +3.15 vs 7.57 |
+| grn (Guaraní) | 15.38 | **18.37** | direct +2.99 | -2.45 vs 20.82 |
+| yua (Yucatec Maya) | **24.51** | 18.86 | pipeline +5.65 | no organizer baseline |
+| nlv (Orizaba Nahuatl) | **23.16** | 21.56 | pipeline +1.60 | +11.63 vs 11.53 |
+| hch (Wixárika) | 11.08 | **18.14** | direct +7.06 | -6.69 vs 17.77 |
+| **Avg (4 w/ baseline)** | **15.09** | **16.85** | — | — |
+
+**Key takeaway:** Pipeline wins decisively for yua (+5.65) and nlv (+1.60), and beats direct for bzd (+1.29). Pipeline loses for grn (-2.99) and hch (-7.06). For the submission, we should use the best method per language — that's the optimal strategy.
+
+### What changed since the 2026-04-14 review
+
+Almost everything flagged as P0 is now done:
+- [x] Dev sets integrated and evaluated for all 5 languages
+- [x] Language-agnostic CLI (`python -m americasnlp {evaluate,submit,generate-language,list}`)
+- [x] Bribri image format bug fixed (Pillow re-encoding in `data.py`)
+- [x] Agent-generated yaduha packages for bzd, grn, yua, nlv (not just stubs)
+- [x] Agentic translator removed; pipeline method is the proposed system
+- [x] Dead code cleaned up; repo restructured around `src/americasnlp/`
+- [x] Held-out validation (20 rows/lang) giving honest signal on agent-authored packages
+- [ ] Test set runs — **not yet done, test sets just released**
+- [ ] `--train-frac 1.0` regeneration for final packages — **not yet done**
+- [ ] hch package still uses the old reference implementation (63 lex entries), not agent-generated
+
+### Critical issues (10 days to submission)
+
+**BLOCKER — Submodules not checked out.** `americasnlp2026/` and `yaduha/` are empty directories. Anyone cloning/pulling this branch cannot run `evaluate`, `submit`, or `generate-language` without `git submodule update --init --recursive`. This must be documented and/or fixed before any team member tries to reproduce results.
+
+**P0 — Must-do before May 1:**
+
+- [ ] **Run test-set submissions for all 5 languages.** Test sets were released 2026-04-20. Command: `uv run americasnlp submit --language {lang} --method {best_method} --split test`. Use pipeline for bzd/yua/nlv, direct-3shot for grn/hch. — **Owner: Nick (familiar with the CLI)**
+- [ ] **Regenerate hch with the generator agent.** The current yaduha-hch is the old reference package (63 lex, 2 sentence types). Every other language was agent-generated with 100–200+ lex entries and 3–6 sentence types. Running `generate-language --iso hch` should bring hch in line with the others. This alone could close the 7-point gap vs direct. — **Owner: Diego (knows the generator best)**
+- [ ] **Regenerate all packages with `--train-frac 1.0`.** In submission mode, the agent should see all 50 dev rows (not just 30). This is a straightforward knob. Run for all 5 languages. — **Owner: whoever runs the generator**
+- [ ] **Decide per-language submission method.** For grn and hch where pipeline < direct, we should submit the direct 3-shot output. For bzd/yua/nlv, submit pipeline. — **Decision needed from Jared**
+- [ ] **Verify submission format.** Check that `submit.py` output matches the shared task's expected JSONL schema. Look at the task page / organizer README for field requirements. — **Owner: Nick**
+
+**P1 — High-leverage improvements if time permits:**
+
+- [ ] **Improve grn (Guaraní) grammar.** Pipeline underperforms direct by 3 points. The grn package has 205 nouns, 40 transitive verbs — decent, but Guaraní is agglutinative with complex verb morphology that the current model may oversimplify. Consider re-running the generator with higher `--max-iterations` or manual vocab expansion. — **Owner: Amanda or Azul**
+- [ ] **Fix hch pipeline JSON parse errors.** README notes 6/50 rows hit JSON-parse errors from yaduha's `AnthropicAgent`. Switching to `client.messages.parse(output_format=...)` would fix this. The lost rows hurt hch's average. — **Owner: Diego**
+- [ ] **Run zero-shot baselines.** We have 3-shot results but no zero-shot for comparison. The paper needs this ablation row. Quick: `run_all.sh` already sweeps zero-shot. — **Owner: anyone**
+- [ ] **bribri val pipeline results missing.** The val-only run was done for grn/yua/nlv/hch but not bzd pipeline. Run `evaluate --language bribri --method pipeline --val-only`. — **Owner: Nick**
+
+### Team member assignments
+
+| Person | Priority task | Stretch task |
+|--------|--------------|--------------|
+| **Diego** | Regenerate hch with generator agent; fix JSON parse errors in pipeline | Re-run generator for grn with higher iterations |
+| **Nick** | Run test-set submissions for all 5 languages; verify submission format | Run zero-shot baselines; fill in missing bzd val pipeline |
+| **Amanda** | Help review/improve grn grammar package | Start system description paper outline |
+| **Azul** | Help review/improve grn grammar package | Start system description paper outline |
+| **Faezeh** | Run `--train-frac 1.0` regeneration for bzd, yua, nlv | Review and document the generator prompt workflow |
+| **Jared** | Decide per-language method (pipeline vs direct); review submission strategy | Review agent-generated packages for linguistic plausibility |
+
+### Answers to open questions
+
+- **Diego's question (2026-04-19) about running Wixárika end-to-end:** This is now resolved by Jared's restructuring. The CLI handles everything: `uv run americasnlp evaluate --language wixarika --method pipeline --split dev`.
+- **Diego's question about Pillow image fix:** Done. `data.image_data_url()` re-encodes through Pillow. The bribri image format issue is resolved.
+- **Should we use pipeline or direct per language?** Submit the best per language. Current recommendation: pipeline for bzd/yua/nlv, direct-3shot for grn/hch. After hch is regenerated, re-evaluate.
+- **Paper structure:** Start outlining now. Key sections: (1) LLM-RBMT thesis, (2) the generator prompt and workflow (reproduce verbatim from `docs/bootstrap_language.md`), (3) per-language results with pipeline vs direct ablation, (4) qualitative error analysis, (5) honest limitations (vocab coverage, grammar simplicity). Due 2026-05-13.
+
+### Schedule to hit May 1
+
+- **2026-04-21 (today):** Regenerate hch with agent. Run `--train-frac 1.0` for all languages. Fix submodule checkout instructions.
+- **2026-04-22–23:** Run test-set submissions (pipeline for bzd/yua/nlv, direct for grn/hch). Verify output format.
+- **2026-04-24–25:** Review test outputs qualitatively. If hch regeneration worked, consider switching hch to pipeline. Re-run grn generator if time.
+- **2026-04-26–27:** Buffer days. Fix any issues found in test outputs. Freeze code.
+- **2026-04-28:** Final submission files frozen. No code changes after this.
+- **2026-04-29–30:** Review, sanity-check, dry-run the submission upload process.
+- **2026-05-01:** Submit. Do NOT push code changes on submission day.
+- **2026-05-02–13:** Write system description paper.
