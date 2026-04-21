@@ -20,7 +20,8 @@ quality of the resulting packages.
 echo OPENAI_API_KEY=sk-...     >> .env
 echo ANTHROPIC_API_KEY=sk-...  >> .env
 
-# Generate one language. Bribri shown; works for any of {bzd, grn, yua, nlv}.
+# Generate / improve one language package. Works for any of {bzd, grn, yua, nlv, hch}.
+# All 5 packages already exist in-tree; the agent reads + edits rather than starts fresh.
 uv run americasnlp generate-language --iso bzd
 
 # Knobs:

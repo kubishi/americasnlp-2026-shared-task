@@ -48,9 +48,27 @@ features, sentence templates), the only thing the LLM is allowed to do is
 synthesized by Python code in `Sentence.__str__()`. The model never sees
 or generates target-language tokens.
 
+## Architectural alternatives considered
+
+Two variants of the captioner share infrastructure with the proposed system
+and are kept around in `src/americasnlp/captioners/` for measurement:
+
+- **One-step** (`one_step.py`): the VLM emits the structured `Sentence` JSON
+  directly via OpenAI structured outputs, skipping the English intermediate.
+  Cheaper (one LLM call) and gives the VLM full image context. Empirically
+  loses to the two-step pipeline at every model tier — VLMs are notably
+  weaker at structured-output JSON than text translators, even with strong
+  in-vocab steering. Documented as a measured architectural alternative,
+  not the primary path.
+- **Local Ollama backend**: any of the captioners can take an Ollama-hosted
+  model (e.g. `qwen2.5vl:32b`) in any slot via model-name dispatch. Local
+  multimodal as the VLM step is roughly equivalent to cloud `gpt-4o-mini`
+  for free. Useful for low-cost iteration; insufficient quality for final
+  submissions on its own.
+
 ## Comparison baselines (not the proposed system, just for the paper)
 
-For each language we will also report:
+For each language we also report:
 
 1. **zero-shot direct prompting** — VLM gets the image and a one-line prompt
    asking for a caption in the target language. No examples.
@@ -200,22 +218,39 @@ missing rows.
 
 ## Risks and what to do about them
 
-- **ChrF++ will be low for the pipeline method.** The grammar models are
-  small and produce simple sentences against ornate references. Mitigation:
-  ship direct baselines too so we have a comparison row in the paper. Lean
-  on the Stage-2 human eval for the grammaticality story. Don't try to
-  win Stage 1.
-- **Building 4 language packages by May 1 is tight.** The bootstrap prompt
-  has to do most of the work; humans (us) only review and tweak.
-  Fallback: if a yaduha-{lang} package doesn't materialize for some
-  language, that language only gets the direct baselines submitted.
-- **Bribri image format bug** is still open from the previous progress doc.
-  Fix in the new `data.py` by re-encoding through Pillow on load.
+- **ChrF++ in the 10–25 range is realistic.** As of 2026-04-21, the
+  pipeline beats the organizer baseline on bzd / nlv (and covers yua which
+  the baseline can't), but loses on grn / hch where Sonnet has heavy
+  pretraining exposure. Best-per-language average matches our few-shot
+  direct baseline. Mitigation: ship direct baselines for comparison; lean
+  on the Stage-2 human eval for the grammaticality story.
+- **Per-language model selection costs.** Picking the strongest model per
+  language requires a strong-model dev sweep (~$25 for `gpt-5`). Done once,
+  the matrix predicts lift across the board so we don't need to repeat for
+  marginal package changes. See README → Cost discipline.
+- **JSON-parse failures on the structured-output step** were the original
+  motivation for switching from Anthropic to OpenAI for the translator.
+  OpenAI's native structured outputs eliminated them; ollama models without
+  fine-tuning are unreliable here (matches the OVP weakmodels-paper finding).
 
-## Out of scope
+## Future directions (deferred, not currently committed)
 
-- Fine-tuning, LoRA, RAG, or any approach that requires gradient updates.
+- **Auto-finetuning the translator step** ([`docs/auto_finetuning_spec.md`](docs/auto_finetuning_spec.md)).
+  Port the OVP `feature/weakmodels` recipe (LoRA on Qwen2.5-3B) to our 5
+  languages. Two paths described: local LoRA (Path A) for the open-weight
+  paper story, or OpenAI fine-tune of `gpt-4o-mini` (Path B) for cheap
+  high-quality submission inference. Both train on synthetic
+  (English, structured Sentence) pairs sampled from the language package
+  itself — no parallel image/text data needed.
+- **VLM prompt engineering**: actively steer the English caption (or the
+  one-step structured output) toward in-vocab lemmas via hypernym
+  substitution guidance. Initial test on one-step lifted yua by +5.16 and
+  grn by +3.97; same approach should help two-step.
+- **Submission-mode generators**: re-run with `--train-frac 1.0` so the
+  agent sees all dev rows before final test-set submissions.
+
+## Out of scope (still)
+
 - The `AgenticTranslator` from yaduha. Removed.
-- Building a `plot_results.py`. Numbers go in CSVs and into the paper directly.
-- Anything Owens Valley Paiute beyond keeping the package available for
-  framework-level tests.
+- Anything Owens Valley Paiute beyond keeping `yaduha-ovp` available as
+  a read-only reference for the generator + fine-tuning experiments.

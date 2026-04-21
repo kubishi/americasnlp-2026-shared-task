@@ -88,6 +88,11 @@ Working doc for team coordination. Everyone: please add updates under your own s
 
 ### Jared Coleman (supervisor)
 - **Notes / decisions needed:**
+- **2026-04-21 (afternoon) — local VLM, one-step exploration, fine-tuning spec:**
+  - **Local VLM via Ollama works.** Pulled `qwen2.5vl:7b` and `qwen2.5vl:32b`; added an `_ollama.py` backend that the captioner dispatches via model-name pattern (anything with a `:` tag that isn't `gpt-`/`claude-`/`ft:`). Full-dev sweep with `qwen2.5vl:32b` as the VLM (gpt-4o-mini still as translator) lands at avg **15.05** vs gpt-4o-mini cloud-VLM **15.16** — essentially tied for $0. Free win for low-cost iteration.
+  - **One-step variant tested.** Built `OneStepCaptioner` that has the VLM emit `SentenceList` JSON directly via OpenAI structured outputs (no English intermediate). Lost on every language at gpt-4o-mini (avg ~11 vs two-step's 15). Stronger prompt steering toward in-vocab lemmas lifted yua by +5.16 and grn by +3.97 but didn't catch up to two-step. Conclusion: the English intermediate is doing real work; VLMs are weaker at structured-output JSON than text translators. Logged as a documented architectural alternative; not the primary path.
+  - **Auto-finetuning spec written** (`docs/auto_finetuning_spec.md`). Port of the `feature/weakmodels` recipe from `kubishi/yaduha-ovp` + the WIP paper at `kubishi/paper_yaduha_open_weight`. Two paths: (A) local LoRA on Qwen2.5-3B per language; (B) OpenAI fine-tune of `gpt-4o-mini`. Currently on hold pending decision. Applies to the **translator step** (image→English VLM unchanged); fine-tuning data is synthesized from the yaduha-{iso} packages themselves (sample structured Sentence → render to canonical English → paraphrase) so no parallel image data needed.
+  - **Code organization**: backend dispatchers split into `_openai.py`, `_anthropic.py`, `_ollama.py`. New `OneStepCaptioner` lives in `captioners/one_step.py`. `--method` choices now `pipeline | one-step | direct`.
 - **2026-04-21 — model exploration + cost discipline:**
   - Test set released (990 rows: bzd 267, grn 110, yua 212, nlv 200, hch 201). Submodule bumped, format already matches our submission writer.
   - Captioners refactored to dispatch on model-name prefix: `claude-*` → Anthropic, anything else → OpenAI. Both VLM and translator paths.

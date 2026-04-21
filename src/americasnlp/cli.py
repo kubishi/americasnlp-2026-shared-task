@@ -28,6 +28,9 @@ def _make_captioner(args: argparse.Namespace) -> Captioner:
             vlm_model=args.vlm,
             translator_model=args.translator or args.vlm,
         )
+    if args.method == "one-step":
+        from americasnlp.captioners.one_step import OneStepCaptioner
+        return OneStepCaptioner(lang=lang, vlm_model=args.vlm)
     if args.method == "direct":
         from americasnlp.captioners.direct import DirectCaptioner
         return DirectCaptioner(
@@ -114,7 +117,8 @@ def cmd_generate_language(args: argparse.Namespace) -> None:
 
 def _add_common_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--language", required=True, choices=list(LANGUAGES))
-    p.add_argument("--method", required=True, choices=["pipeline", "direct"])
+    p.add_argument("--method", required=True,
+                   choices=["pipeline", "direct", "one-step"])
     p.add_argument("--vlm", default="gpt-4o-mini",
                    help="OpenAI vision model (default: gpt-4o-mini)")
     p.add_argument("--translator", default=None,

@@ -1,0 +1,51 @@
+id,predicted_caption,target_caption,chrf
+yua_001,Juntúul miis ku weenel Juntúul miis [be] [bed] [room] [be] [blue wall],Juntúul miis ku weenel,64.7157
+yua_002,le áanalte'o' [be] [dictionary] ya'ab che'o'ob [be] [big] [sign] [have] [writing] [paper] [be] [letter],Junp'éel áanalte' ich maaya t'aan.,17.7920
+yua_003,ya'ab máako'ob kulukbal le computadorao' [show] Juntúul máak [point] Juntúul máak [look],Oxtúul máak tu táan junp'éel computadora.,30.3682
+yua_004,[cup] [have] Junp'éel café [cup] [be] [black] le mesao' [be] [surface],Junp'éel boox nu'ukul uti'al u uk'ul café.,20.6596
+yua_005,[box] [exist] [wood] Junp'éel buts' [exist] [air] ya'ab che'o'ob [exist] Junp'éel k'áax,Le lela' tu'ux ku jo'saaj kaab etel  ya'ab buts' etel su'uk kíimen.,16.0506
+yua_006,Junp'éel botella [be] Junp'éel ja' Junp'éel botella [stand] Junp'éel lu'um Junp'éel lu'um [be] Junp'éel jool,Le botellao' ja'o tÍ yáan taníil le joolnajo'.,16.9474
+yua_007,[lamp] [shine] [room] [exist] le mesao'obo' [exist] [backpack] [exist],Le lela' junp'éel sasili' ichil najilxook.,9.8495
+yua_008,Junkúul che' ku loolankil Junkúul xa'an ku ch'íijil Junp'éel su'uk ku ch'íijil le pak'ilo' [exist] le che'o',Le xa'ant ti yaan aktáan le bardao'. Tak xan yano' junp'éel u paak'al ku loolankií.,22.3134
+yua_009,[spider] kulukbal [spider] [be] [white surface] [spider] [be] [small],Le amo' ti yáan lu'ume.,5.0357
+yua_010,Junkúul sakchak lool ku mach'ik [hand] ya'ab xa'ano'ob wa'akbal Junp'éel ka'an [be],Le lela' jump'eel sakchak' lol.,20.5847
+yua_011,ya'ab che'o'ob wa'akbal ya'ab che'o'ob [have] ya'ab le'o'ob le ka'ano' [be] [blue],Le lela' nuk'uch pak'alob ya'axob ts'o'ke núuktakoob.,13.6249
+yua_012,[cross] [be] Junp'éel pak'il Junp'éel su'uk [grow] Junp'éel lu'um ya'ab che'o'ob [be] [background],"Junp'éel pak' yaan junp'éel boonil jach ta uts, beyxan yaan tikin su'uk tu pach yaan xan u yoochel juntúul máak.",20.2893
+yua_013,ya'ab chak loolo'ob ku ch'íijil o'ob Junkúul ya'ax pak'al [have] ya'ab chak loolo'ob le nojoch kooto' [be] Junkúul ya'ax pak'al,Junkúul k'áax yaan u loolo'ob de sakchak.,24.9143
+yua_014,Junp'éel kisbuuts' [park] Junp'éel bej le najo' [be] [yellow] [roof] [be] Junp'éel naj ya'ab che'o'ob [be] [next to],Junp'éel k'an naj yaan xan ka'ákúul che' táanil beyxan junp'éel chak' kisbuuts'.,28.9453
+yua_015,le che'o' ku ch'íijil le che'o' [have] ya'ab k'an loolo'ob le che'o' [be] [tall] le che'o' [stand] le lu'umo',Junkúul ché' yaan u lool k'an beyxan jach taj ka'anal.,14.0105
+yua_016,ya'ab puuto'ob [grow] Junkúul che' le che'o' [have] ya'ab le'o'ob le che'o' [be] [green],Junkúul puut jach ya'ab u yich beyxan yaan tu paachil ya'abach u le' ja'as.,20.6965
+yua_017,Junkúul sakchak lool yaan ichil ya'ab ya'ax pak'alo'ob Junkúul sakchak lool ku loolankil,Junkúul éek' puk'e'en lool yaan xan tu paach ya'abach ya'ax k'áax jaantaj.,27.2383
+yua_018,Juntúul kaax ku xíimbal Juntúul kaax [eat] le lu'umo' [be] Juntúul kaax [be] [white],Juntúul sak kaax  táan u tóochik le lu'umo'.,29.7355
+yua_019,Junp'éel k'áanche' [sit] [wood] le najo' [be] Junp'éel pak'il Junkúul che' [be] [next to],Junp'éel k'áanche' yaan tu tséel le che'o' beyxan yáan junp'éel pak'  chukwa' tu paach.,35.2986
+yua_020,[che'o'] yaan [che'o'] [ku yóok'ol] [leaves] [che'o'] [ku k'áak'] [trunk],Junkúul ya' jach ya'ab u le' beyxan jach ya'ab sínik yaan iknal.,9.9256
+yua_021,le najo' [be] [thatched roof] le najo' [be] [wood] le che'o' [be] [next to],Junp'éel u naj k'áax beyxan yaan tu táanil junkúl che'.,8.4646
+yua_022,le ch'uupo' wa'akbal le ch'uupo' [look] le che'o' Juntúul máak [work] Junkúul pak'al Junkúul pak'al [be] Junp'éel nu'ukul le ch'uupo' ku búukintik [dress],"Nojoch máak yéetel u huipil de flores jejeláas bonilo'ob, wa'akbal tu tsel U pak'alo'ob.",18.4567
+yua_024,le najo' yaan ichil [kitchen] Junp'éel k'áak' [burn] Junp'éel nu'ukul [contain] ya'ab ixi'imo'ob Junp'éel mesa [have] [items],Chi' k'aak' yettel nixtamal ti naaj.,14.8522
+yua_025,le nu'ukulo' táan u tsiktik Junp'éel k'áak' [wood] [burn] Junp'éel k'áak' le nu'ukulo' [be] Junp'éel buts' Junp'éel janal [be] le nu'ukulo',Ki'iwaj ku lo'kansaj,9.0351
+yua_026,ya'ab janalo'ob [be] [plate] Juntúul máak [sit] le mesao' ya'ab janalo'ob [be] [bowl],"Jump'éel naj tu'ux ku ts'áajal polcanes, yáan nu'ukulo'ob yook'ol mesa, yéetel jump'éel ollia paachil juntúul máak ku k'aaxik jump'éel bolsaa.",13.8707
+yua_027,Juntúul miis kulukbal le najo' [have] le joolo' Junp'éel ka'an [be] ya'ab muunyalo'ob,"Jump'éel xa'anil naj tu'uxan juntúul chan míis p'ukukbal chumuk, paachile' sáasil yéetel k'íin, yáan ya'akach kúul che'ob ku wilk'ajab, yéetel xane´muñalo'ob ku mano'ob.",14.3063
+yua_028,Juntúul ch'uup [work] ya'ab janalo'ob le najo' [exist] [wood] ya'ab janalo'ob [be] ya'ab le'o'ob,Máak ku tsiktik kaax yeetel ku patikk tamali',7.5312
+yua_029,Junp'éel naj [be] ya'ab tunicho'ob ya'ab pak'alo'ob [grow] ya'ab ixi'imo'ob ya'ab che'o'ob [be] [green] Junp'éel k'íin ku jultik Junp'éel sáasil,"Jump'éel solar tu'ux yáan ya'akach kúul che'ob tu pachil, táanile' yáan xiimo'ob ts'u jolo'ochtalo'ob, yóok'ole' yáan bu'ul ku t'i'it'pajal, taanile' yaan jump'éel koot chowak.",18.0968
+yua_030,Juntúul máak ku xíimbal Junp'éel k'áax [exist] ya'ab che'o'ob [path] [exist] Juntúul máak,Winik ku xiimbal ti k'aax.,16.4131
+yua_031,[melon] ku ch'íijil ya'ab pak'alo'ob [be] [rock] [be] Junp'éel lu'um [be],"K'uum ku kajal u tak'antaj yook'ol boox lu'um, tu ba'asche' yáan ya'akach tunicho'ob yéetel k'áaxo'ob.",13.1291
+yua_032,ya'ab ixi'imo'ob ku ch'íijil o'ob ya'ab pak'alo'ob [be] ya'ab che'o'ob [be] le ka'ano' [be],"Winik wa'akbal yáanal ya'akach che'ob, táanile' óoxp'el kul xiim, yéetel kaanle' azul mina'an muñal ku wilk'ajab.",13.6829
+yua_033,Junp'éel ixi'im ku ch'íijil le ixi'imo' [have] [dry leaf] le ixi'imo' [have] [white kernel] ya'ab che'o'ob [be] [green],"Xiim ts'ok u jaantal tumen ba'alche'ob, paachile' ya'akach che'ob ya'axtako'ob, mina'an muñal ku man ka'anal.",12.4365
+yua_034,Junp'éel k'íin [shine] Junkúul che' [have] ya'ab le'o'ob Junp'éel k'ab ku mach'ik Junp'éel k'u' Junp'éel ka'an [be],"Sáasil k'íin ku jultik jump'éel chan nido chan ch'iich ch'uyukbal tu kul k'i'ixil che', azul le ka'analo'.",18.6128
+yua_035,ya'ab máako'ob wa'akbal le najo' [be] ya'ab banderao'ob ch'uyukbal ya'ab sáasilo'ob [be],"U noj najil ku' tuux much'ukbal ya'akach winiko'ob, táanile' jump'éel nok' u bonilo'obe' yáax, sak, yéetel chak, chúumuke' ch'uyukbal banderrillas jejeláas bonilo'ob.",19.0655
+yua_036,[block] [be] Junp'éel nu'ukul [block] [be] Junp'éel mesa le najo' [be] [wood],Kiiwaj maka'an yettel block.,10.8136
+yua_037,Juntúul máak táan u meyaj [hand] [hold] [wood] [be] [rope] [be],Winik ku k'aaxik u si' yeetel aak'.,6.7381
+yua_038,ya'ab peek'o'ob wa'akbal Juntúul máak kulukbal le najo' [exist] Junp'éel bej ya'ab che'o'ob [exist],"Peek'o'b walakbalo'ob jool naj, ichil le najo' yáan wíiniko'ob kulukbalo'ob, paachile' yáan che'ob yéetel jump'éel naj.",26.0118
+yua_039,Juntúul peek' chilikbal le bejo' [be] le najo' [be] le bejo' ya'ab che'o'ob [be],"Chan peek' chilikbaj yook'ol carretera, paachile' yáan ya'akach che'ob yéetel jump'éel chowak koot, tu taamile' yáan jump'éel sak naj.",17.9152
+yua_040,le najo' yaan tu tséel Junkúul che' Junp'éel bicicleta yaan tu tséel le najo' Junkúul che' yaan tu táan le najo',Bicicleta najkunsa' tseel úuchben xa'aninaj.,20.2396
+yua_041,Juntúul ch'íich' [sit] [strap] Juntúul ch'íich' [have] [feather] [wood] [be] [dark],Baach u mot'mubal tu weenel tu tsel apagador ichil naj.,9.7568
+yua_042,Juntúul miis [stand] [wood] Junkúul che' [have] ya'ab le'o'ob Junp'éel naj [be] [roof],"Chan míis ku máan yook'ol lamina, yóok'ole' junkúul che', tu tséelile' jump'éel cubeta ch'uyukbal, paachile' jump'éel naj u yóok'ole' de lamina.",14.9141
+yua_043,Juntúul máak ku mach'ik ya'ab bu'ulo'ob Juntúul máak ku lúubsik ya'ab bu'ulo'ob [bowl] [have] ya'ab bu'ulo'ob le lu'umo' [be] [dirt],Juntúul máak ku xiixtik sak ibo'ob.,29.9131
+yua_044,Juntúul miis chilikbal Juntúul miis [be] [rock] le najo' [be] [wood],Le miiso' te chilikbal yookol le pak'il le najo'.,28.5836
+yua_045,Junp'éel kisbuuts' [be] Junp'éel naj Junp'éel kisbuuts' [be] ya'ab su'uko'ob Junp'éel kisbuuts' [be] Junp'éel ka'an,"Tu tséel le sakchak najo', yaan  junpeel sak kisbuuts' yéetel junkúl xa'an.",21.0802
+yua_046,[che'o'] yaan tu táan le najo' [che'o'] [ya'ab] ya'ab le'o'ob [che'o'] [ku] ya'ab k'abo'ob,"Le che'o' mina'an u le', ba'ale' ya'ab u yich tu tséele' yaan junkuul xa'an.",21.1172
+yua_047,le che'o' [be] ya'ab le'o'ob le che'o' [have] ya'ab icho'ob ya'ab muunyalo'ob [be] le ka'ano',"Le sakpakalo'obo' ti'  yano'ob tu k'ab le che'o', le cheo' ya'ab u yich.",32.2792
+yua_048,Juntúul péepen [sit] Junp'éel k'ab ya'ab che'o'ob [be] ya'ab le'o'ob Juntúul péepen [be] [black],Le boox péepen ti' yaan tu k'ab le che'o'.,24.7638
+yua_049,Juntúul kaax [ku weenel] Juntúul kaax [ku weenel] ya'ab che'o'ob [yaan] [green] [log] [yaan] [big],Juntúul sak kaax yéetel juntúul book kaax ti ya'ano'ob yaanal le che'o'.,28.3651
+yua_050,Juntúul ch'uup ku wilik [object] [mural] [be] le pak'ilo' ya'ab che'o'ob [be] [background],Te boona' ya'an juntúul ch'uup ku yiik biix u taabal le k'áako'.,30.1692
+yua_051,Junkúul sakchak lool ku ch'íijil Junkúul chan che' [be] le sakchak che'o' [have] ya'ab sakchak loolo'ob le nojoch bejo' [be],Junkúul sakchak lool yaan yookol le bejo'.,39.1201

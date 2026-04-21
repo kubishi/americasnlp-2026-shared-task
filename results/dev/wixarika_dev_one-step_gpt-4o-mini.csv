@@ -1,0 +1,51 @@
+id,predicted_caption,target_caption,chrf
+hch_021,[rock] me[be] há [be] kiyete me[be] [cliff] [be] [rock] há me[sit],Aitá há puye háne tsiere tek+a huyé tiuka háne mana te+teri memeuka neniere kiekari muwa heye mamaku.,7.2058
+hch_022,[rock] huyé [be] huyé yaha kiye kwie [be] kieri [be] taheima [be],"Huyé wixarika húyeya m+ya ke m+tikuyeika, ya ane k+a huyé muta wewi hánu ku inet+ aitsie miku hánitsit+a.",9.2931
+hch_023,[rock] me[be] [grass] meiweka há apá [be] kieriete me[be],"Huyé muye hápane ya xeik+a aitá, yá p+ré huyé wixarika ya pauka muyé aník+.",5.6998
+hch_024,kí [mud] p+h+k+ kí [blue] p+h+k+ huyé [be] kieri [be],"Kiekari mukumáne huyé m+xuawe turuki m+ ka heuta háke tsie nait+ aix+ p+ ka tiu ane, reu yewet+ p+ áne x+ ka m+pa+ ti anenike nait+ kí aix+ p+ anenenike.",7.1353
+hch_025,uká ti 'uxi [hold] [bus] [be] [bus] huyétsie p+ma,"Turuki m+k+net+we wixaritari wa kie meu ti háke, heiwa m+ ti murike huyetá ú miet+ m+ kauye at+arieni huyetá meyu há yewa.",4.4601
+hch_026,teyupani [tall] p+h+k+ te+teri [banner] meikata [banner] [welcome] p+h+k+ te+teri memie [traffic_light] [red] p+h+k+,Teyupanie titetewat+ mu ku út+ka kiekari tsie tsepá kewa yak+ m+yeyeu ya xeik+a ám+yeyeu tsie muwa tsiere p+ rá yu ye xeiya.,13.3324
+hch_027,teví kareta [push] kiyete me[be] ramarute me[be] te+teri mekat+ [light] me[be],Kiekari m+tama te+teri me mayu ti xexe+riwa hi pat+ me xeiya ya xeik+a me xeiya tatuwani mewa yeka.,16.6555
+hch_028,[street] [narrow] [be] ramarute [yellow] mewa[be] wixáritari mekat+ [lamp] [black] mewa[be] [sign] [Amado Nervo] [be],Teiwarit+a wixaritari mem+ tama ya xeik+a heiwa muwa meuyeneni te meu uwa heiwa yu ku aitanet+ heiwa yu ku há rerutanet+ mana tá kemari tsie puyu hek+a.,12.1318
+hch_029,[smoke] 'ane [factory] [be] kiyete me[be] kareta huyé [be],"Há tsukari ma wewiya kiekari hix+apa ya xeik+a mana uwá p+ tuiyane turuki tsixi wa hetsie wa+ kawat+, taxari manuye k+ka ya witárita.",5.4611
+hch_030,kieri [high] [be] huyé [winding] [be] taheima [blue] [be] kieri [green] [be],Turuki huyeya yemuri ut+a kwauxa tsie reyetewakaku kiekari mukutetewa ya tiu anekaku meuyeneni.,7.7504
+hch_031,kieriete me[be] kiye [be] [fence] [be] [rock] me[be] [fence] kierietetsie p+ma,"Huyé tek+a mu ku hápane heiwa neniereme temayeit+wa yemuri aitá, hát+a, aki ut+a nait+ m+tá hek+a.",8.3291
+hch_032,kiye kieri p+h+k+ kiye ti [rock] me[be] taheima [be],Kwáta wixarika ikwaiya yeuta h+ritsie m+ xuawe war+kariet+ yan+st+ni y+y+rit+ máyu kwáa.,7.7775
+hch_033,huyé yaha kieriete me[be] [bush] meiweka taheima [be] haite me[be],"Huyé atewa mieme wixarika, huyeya, turuki, metá tsiere tewáxi mana me muk+k+ka.",12.4453
+hch_034,temawiet+ [color] [be] temawiet+ [color] [be] [shelf] ikwaite wa[be] [shelf] [container] wa[be],Wixarika im+arieya utsiet+ uti xainék+ ya xeik+a kemarite tiuti t+nirék+.,11.5080
+hch_035,temawiet+te me[hang] [sack] me[be] [box] me[be] ramaru kíkewa p+ma,"Ikwaite, kemarite, im+arite, tinait+ ti ut+t+ nunutsi m+ kauti axe tsie.",9.2492
+hch_036,kemarite me[hang] kí [be] [bucket] [be] kemarite me[be] kemarite me[be],Wixarika yu kie ya p+ ti utá wapait+ tiuye yetsa ya xeik+a m+ tiu ti +xa tsie yu kemarite.,10.9312
+hch_037,wixárika kat+ wixárika iwa [bucket] me[be] muumete me[be],"Ikú yualawime uyari, mana ketari mi ka xakwitsa ti pini ketari me wa ku t+x+.",11.0385
+hch_038,uká ti kí [be] kiye [be] há [be] kemarite me[hang],Kareta mat+a puretini wixarika mana ti ti kwa at+ kareta tsie p+ ye húpu ya xeik+a yu pinite mana pait+ p+ ti ye pine.,6.9118
+hch_039,wixárika iwat+ wixárika kat+ tete [tool] p+h+k+ tete [tool] p+h+k+,Uká yu t+xi p+nat+ ya xeik+a mata tsie papaa p+name mana naime rá pit+.,10.1226
+hch_040,[pot] tai [be] [pot] kat+ tai [burn] [pot] [black] [be],Ikwai ya n+ts+ itsari tai tsie p+ tiu ka wewiwa puretini wewiyakame tsie heiwa tenari tsie.,6.7368
+hch_041,tetete me[be] [fence] [be] [fence] [be] tetete me[be],"Kuraru payu wewiwa tixa+t+ m+tiukunani ite+ri, m+ya tewáxi muwa mem+ te+ +nar+wani k+.",3.6685
+hch_042,kiye [be] kíte me[be] kieriete me[be] kwie [be],Mat+ari x+ka uká wiyé o (witari) x+ka hanuyeyaní tats+arí witarita yu katsut+aka.,3.9218
+hch_043,kí ramarukewa p+ma,"Pínite patsixa ti mieme m+ti kaw+w+re kem+reupa+me hipat+ wai meuti n+ +', hipat+ nawá uwá ti niu t+kait+'.",3.1650
+hch_044,[bucket] me[have] [bucket] me[contain] [meat] [be] [orange] me[be] temawiet+ [be],"Nawá mawarika tsie mieme ya xeik+a wirikuta, tukipa, its+kame m+rewatiwiya naitsarie peuka tuirike peuti n+it+ariwa, yuimakwaxa, patsixá.",5.9761
+hch_045,uká kat+ 'uxi kat+ teví kat+ uká [traditional_clothing] p+h+k+ teví xupureru p+h+k+ [place] kítsie p+ma,"Te+teri me mayuti xexe+riwa xamaru t+a, meteta mariet+ kem+ti ku xaxatsiwa.",11.7747
+hch_046,[flag] [Mexico] p+h+k+ [balloon] me[be] kíte me[be] [decoration] me[be],Wixarika ix+arari matinenet+wa mat+ari p+ránu taw+w+t+wa aix+ m+tiyu he k+akaku m+rayu kemakak+.,5.8596
+hch_047,kieriete me[be] kiye [be] huyé [be] kieriete [fog] mexeiya,Hát+a há x+ka hewayeneni witarita nait+ pe+y+y+ipike atewa puku at+yeika.,6.1410
+hch_048,kí kiekaritsie p+ma,"Kiekari manu ye háne yak+ m+yeyeu yu tsata kareta peuti ú, yu nait+mat+ kí x+nariya k+ wewiyat+kait+.",7.4509
+hch_049,kieri kiekaritsie p+ma,Muku haiyata x+ka ka wiyer+meni hipat+ e'tsiya me mu ka ts+ts+t+wa hipat+ yu tewamá mem+ te wara ku k+w+t+wa.,4.4119
+hch_050,kí [yellow] p+h+k+ kí [has] p+h+k+ [roof] [brown] p+h+k+ kí [be] kieri [near] p+h+k+,"Ki muxuawe yu tsata p+ anene ik+xeniu t+ri mem+ te wa +ki t+arie aix+ p+ reuku wewiyat+ká, wa hetsie tiu unek+.",8.6130
+hch_051,wixárika ti wixárika [hold] kí kítsie p+ma,Tukipa m+rayu ye xeiyanitsie kawiteru tsixi me puyu ku xexe+riwa mawarika pátineika ya xeik+a hákiya.,8.3681
+hch_052,kiye ti kiye iwakate waxeiya kiekari [rock] wa[be] [fence] [place] [be],"Kiekari m+ixa muyu heh+a am+reu tetewi matiwat+, k+yexi a papat+ hurawa rí pumawe k+ ewemete ri naime me puti wite ya nuts+ kuraru, ramaru mepa yeit+a.",7.9071
+hch_053,[cactus] meiweka kiyete meiweka kieriete me[be] haite me[be] [fence] [be] kiekari [be],"Ite+ri meu xuawe ya hipat+ ka ite+tsiekame m+tiuka xuawerike ta ikwai te ma yeit+wa mara mat+a tse+ye m+k+ wixarika, neuxi, wak+ri p+ ikwaiya aimieme pi í te+ta.",9.3974
+hch_054,kieri [high] [be] kieri [rock] xeiya kieri [light] [shine] kieri [dark] [be],"Yemuri meu ti teí h+ritsie x+ka peu ti mieni wa+kawa pe mú xeiya, xa+tsie kiekari mukumane mayu hé k+k+a te mí ka ter+wa ya pa+meme.",8.0814
+hch_055,kí kieriete'aurie p+ma,Kiepa m+reuti pine heiwa muti hauxini yan+ts+ muti ekwa hipat+ hurawa há maneikat+ká mi kwewieni yu ta kwá.,4.4629
+hch_056,kíte kiekari p+h+k+ kieriete kiekari p+h+k+ kiyete iwekate p+h+k+ há apá kiekari p+h+k+ kiekari kierietetsie p+ma,"Kiekari hát+a muku mane yayeyeut+ hipat+ turuki, mawiwe muye axé me xeiya.",13.5927
+hch_057,[sign] [construction] [be] [sign] [information] xeiya [project] [federal] [be] [area] [Nayar] [be] [beneficiaries] [735] me[be],Hawaik+ kiekari pema' ye aní tsie ik+meri p+tiu xeiya ya m+ti a'nene mana puye werar+wa kename ré parewiya kiekaritsie ya pa+ memek+.,10.5479
+hch_058,huyé yaha kieri [be] kíte me[be] [rock] me[be] kiyete me[be],A kie pe ma ye aximeni tsie peuyu tema wieka a iwama a paa'pama pe m+ wa re xeiya k+.,8.3816
+hch_059,kí kiekaritsie p+ma,"Kareta, kí, ramaru, m+k+ p+h+k+ ti útame kukutsume, et+piwame wixarika kiya h+ritsie meuti ú.",8.2679
+hch_060,háne [wood] [be] háne ti háne kieri [be] háne taheima [be],Huyé aitá hipat+ hápa mú hapane wapait+ muyaní x+ka há hewayeneni hipat+ mem+ ka há hauwawe wa hetsiemieme p+ h+k+.,6.3861
+hch_061,kieri [rock] wa[be] háne huyé [be] [cactus] iwekate mewa[be] kiekari tetete wa[be],Huyé te+ teri me man+ k+ka witarita há x+ka kwinie paka k+yexik+ wewiyat+.,12.4345
+hch_062,kieri [tall] p+h+k+ kieri [rock] [be] kieri ane kieri taheima [be],"H+ri tsie meu teu ti tuaya wixaritari, ya xeik+a neuxite hipat+ p+ kaka+yarixi.",10.8435
+hch_063,teví mie kí [red] p+h+k+ kiye [green] p+h+k+ huyé [rocky] p+h+k+ teví yaha kí kiekaritsie p+ma,"Ta huyé maye hápane ta kie, heiwa turuki meu ta háke mana muye yeika metá tsiere tame.",11.8569
+hch_064,[rock] me[be] kiyete me[be] há [be] kiekari [be] taheima [be],"Áki ut+a taxata heiwaka há muka wauket+ká há úte, ya xiekari xeik+a muyuku hayeikawa ke+nat+.",10.5800
+hch_065,kí [kindergarten] p+h+k+ kieri [be] [fence] [be] kiyete meiweka taheima [be],Tsepa kewa t+rí ti wa +' kit+wame kí etsikuera titetewat+ mu xuawe.,11.3713
+hch_066,kí [white] p+h+k+ [hill] [dry] p+h+k+ chíkitsi memie wixárika mie [fence] [metal] p+h+k+,"Kiekari meuti ú, hipat+ me mi kunát+ka tewáxi muwa me teu háx+anik+.",13.2011
+hch_067,kiye [dry] p+h+k+ kiye ti taheima [blue] p+h+k+ kieri 'ane,"Hipat+ ta kie p+ka hu háya a puku tetewa aimieme pú wáki, puyu hék+a.",10.6488
+hch_068,kiyete meiweka [cactus] meiweka kíte me[be] kieriete me[be] taheima [be],"Kiekari heuka ix+ ariet+ tita mana m+ti xuawe ma' he k+a h+'ri, hát+a.",10.4661
+hch_069,kíte me[be] huyé [be] kieri [be] kiye [be] kíte huyé'aurie memama,"Kiekari mukumarix+a hipat+ muyu wewiet+we me pikamana ri, hik+ turukitsixi me wa in+atat+ tit+ reu miet+ huyé m+ni tá há x+a.",7.8986
+hch_070,teyupani ramaru p+h+k+ teví mie 'uxi mie te+teri mekat+ kieri [near] p+h+k+,Teyupanie ti tetewat+ muku ut+ka heiwaka tsaturi me muku ut+ká ta+tana hipat+ me m+ wara ye xeiya.,17.1760

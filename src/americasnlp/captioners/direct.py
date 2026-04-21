@@ -16,6 +16,9 @@ from typing import List, Optional
 
 from openai import OpenAI
 
+from americasnlp._ollama import (
+    is_ollama_model, make_openai_client_for_ollama, normalize_ollama_model,
+)
 from americasnlp._openai import image_data_url, model_kwargs
 from americasnlp.captioners import CaptionResult
 from americasnlp.data import (
@@ -54,11 +57,16 @@ class DirectCaptioner:
     _demo_dir: Path = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
-        api_key = os.environ.get("OPENAI_API_KEY")
-        if not api_key:
-            raise RuntimeError("OPENAI_API_KEY not set; create a .env or export it")
         self._rng = random.Random(self.seed)
-        self._client = OpenAI(api_key=api_key)
+        if is_ollama_model(self.vlm_model):
+            self._client = make_openai_client_for_ollama()
+            self._effective_model = normalize_ollama_model(self.vlm_model)
+        else:
+            api_key = os.environ.get("OPENAI_API_KEY")
+            if not api_key:
+                raise RuntimeError("OPENAI_API_KEY not set; create a .env or export it")
+            self._client = OpenAI(api_key=api_key)
+            self._effective_model = self.vlm_model
         self.name = "direct" if self.shots == 0 else f"direct-shots{self.shots}"
         try:
             pool = load_split(self.lang, self.demo_split, self.data_root)
@@ -90,15 +98,18 @@ class DirectCaptioner:
                                       "detail": "auto"}})
         content.append({"type": "text", "text": "Caption:"})
 
+        kwargs = ({"max_tokens": self.max_tokens, "temperature": 0.0}
+                  if is_ollama_model(self.vlm_model)
+                  else model_kwargs(self.vlm_model, max_out=self.max_tokens))
         resp = self._client.chat.completions.create(
-            model=self.vlm_model,
+            model=self._effective_model,
             messages=[
                 {"role": "system",
                  "content": SYSTEM_PROMPT_TEMPLATE.format(
                      name=self.lang.name, iso=self.lang.iso)},
                 {"role": "user", "content": content},
             ],
-            **model_kwargs(self.vlm_model, max_out=self.max_tokens),
+            **kwargs,
         )
         text = (resp.choices[0].message.content or "").strip()
         if text.lower().startswith("caption:"):
