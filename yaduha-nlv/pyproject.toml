@@ -1,0 +1,13 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "yaduha-nlv"
+version = "0.1.0"
+description = "Orizaba Nahuatl (nlv) language stub for the Yaduha framework"
+requires-python = ">=3.10"
+dependencies = ["yaduha>=0.3"]
+
+[project.entry-points."yaduha.languages"]
+nlv = "yaduha_nlv:language"

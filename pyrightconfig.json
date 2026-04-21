@@ -2,8 +2,13 @@
   "venvPath": ".",
   "venv": ".venv",
   "extraPaths": [
+    "src",
     "yaduha",
     "yaduha-ovp",
-    "yaduha-hch"
+    "yaduha-hch",
+    "yaduha-bzd",
+    "yaduha-grn",
+    "yaduha-yua",
+    "yaduha-nlv"
   ]
 }

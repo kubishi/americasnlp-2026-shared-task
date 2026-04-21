@@ -1,0 +1,21 @@
+id,predicted_caption,target_caption,chrf
+bzd_001,"Àlìkölpa bicha̱' tchakàl yök ba̱ska̱. Yök ba̱ska̱ë́ tchakàl köbö̀ë̀ amùchök i ye, yuwók köbö̀ë̀ amùchök i ye.",Alà âr sku’ a̱. ês ie’pa rö alà tsè̱ke. Sku’ wö̀a krôrô.,9.4767
+bzd_007,"Ù sulë batà e̱nà̱ë, bö̀k bö́töm wë̱r, ku̱rúkurú̱, kö̀ko tùl, sûrá̱ kö̀lpa alâ e̱nà̱ë.","Kayö́, tsawì, kuë̀ e’ tso’ íyiwak wak wa. Ká̱bata a̱ ka̱mî̱ë íyiwak wak sé̱rke.",9.1445
+bzd_008,Dör ie'pa rö ulàpa yawë̀wö. Be' tö Sibú̱ yë' ie'pa erë̀r ká̱ dör e' wè̱che yë̀ alína̱ Sibö́kwe̱. I' ie chö i̱â̱i̱â̱ tö ulàpa e̱' sè̱nu̱k.,Ká̱pake dör iche tö íes tchabë̀köl tsikìne̱. Bö́l kàl daléwa pë’ tso’ i wéblök.,10.6855
+bzd_011,Tàyë sulúwö ë̀ be' bitsî̱ ujtàe wö̀,Awá tso’ ulù tâu̱k. Ês ie’ rö se’ buâwè̱ke. Ie’ âr i ka̱né̱u̱k kipö̀ a̱. I pàio sarûrû kalö̀io butûtû.,2.7976
+bzd_015,"Tsúrö i̱'pa̱k da̱lô ta̱î̱ë ù káwö ẽ́rö ki̱, ie'pa di' ö̀kte̱ tö i̱ska̱",Kacha' wö̀ tso' i wö̀ a̱ má̱t. I tso' íyi tâwo̱ wè̱s se' yö́rke ì alê ujtéköl ie ése. Kacha' rö ó.,6.4043
+bzd_016,"Bèkuö kàbë́ wa̱ sórö dë́rki, i̱ dikö' kimì̱ dë́ki.",Dù tchë́rka kàl ulà ki̱. Dù kie a̱'s i wö̀a dör dalôlô e̱na̱ i tsì̱wö dör má̱t. A̱'s dör ó.,6.0667
+bzd_017,I dibö̀rö̀ ke kèwe bë̀rke wàko è̱ wa klo̱k tá̱ wa kö̀pa e̱ di' wa ù̱.,"Datsi’ skuo tkër ka̱ñí̱ka, i pámi̱k cha̱mù̱ tso’.",8.4843
+bzd_018,Bö́l uâ u̱ wökö̀ chkö̀ ie'pa alàköl íe̱. Sukulí ie'pa uûl e̱ ù wí.,"Akë́kë yë̂âr i mà̱so ta̱. Ie’pa ië̂tër újkö̀ a̱. Tàyë datsi’ bitsî̱, wë́m pàio surûrû ulà bitsî̱.",6.1451
+bzd_019,Akë́kë wa̱tsi̱ dör di ù a̱. Di' tso' kajùlt ye kule̱ wa̱ akë́kë wö́r dör na̱mù̱ ùk tso' wak. E' kabà wa̱ sìko̱köl ye.,Ma̱ñá̱l ka̱nò̱ ki̱ pë’ tso’ shkö́tchö. Ka̱nò̱ wë́rke bö̀töm. Ka̱mî̱ ká̱bata wë́rke.,12.0946
+bzd_020,Wè̱r yúköl kakaò e' ta̱ta̱' tsáwa̱ bákö,Tàyë tso' ák ki̱ tsiru' wö́k. Ie' dör i wèke wíswîs ukö̀ki i tarèke të́shtë̂s. Bua' tsiru' ùna̱ ák ki̱ e' ya'.,5.9852
+bzd_023,"Ù ùr dabëkak di' wö́r dör ie, tso' shkìnì̱ dör i̱ wa̱ bè̱ e' rö tso'ù̱ yuwák a̱lí̱ wa.",Ká̱ wë́rke ká̱jkê̱ë. Di' ajkö́mi̱k ká̱ wë́rke. Ù rö yö'tso ùkö wa. Di' wë̀na̱ í̱skî̱ë dalö̂lö̂ë.,10.8573
+bzd_024,Ù sulë ie' i̱â̱chipa a̱ sè̱no̱ wa yawèke shkíshkî ká̱jkê̱.,Ù sulë batà a̱ mi̱k ka̱m i pà bánu̱a̱.E' ta̱ i yawèke e̱nà̱ ë.,12.0197
+bzd_025,Dör i' úrkala ié uì tso' wa̱mẽrẽ́ ke' diéye tö wa̱mér sẽrrë́ ba̱r ẽ sì̱.,"Pë’ dàmi̱ ta̱î̱ë ka̱nò̱ ki̱, ie’pa mi̱ketchö di’ ajkö a̱wí̱she̱t.",7.5645
+bzd_026,Bö̀k ka̱nò̱ ki̱ pë' tso' shkö́tchö di' a̱.,"Bö́l ie’pa tso’ di’ a̱. Dalì iö́k i tso’. Ka̱nò̱ wö̀a tsipátsipa, âr di’ ajkö̀ ki̱.",9.8287
+bzd_032,"Bö́ iköl kie̱ë̀ tà ú̱lù̱, sṵ̀lù̱ pa̱, dë̀, wa̱á̱. I̱ ye̱' yẽ̀ yö'ö̀ne̱ pa̱ wẽ̀r pà.",Tàyë yë̂âr i alár bö́l e’ ta̱. Ie’pa ië̂te̱r dìba a̱. Alà tsîr wa̱ êtöm kàlka átse̱r e̱’ ulà a̱.,9.0227
+bzd_033,Shkuâ̱ t-ù̱ke cha̱ko̱lá̱ ditö́buk a̱. Bö' alírkeke i pàbatchër wa.,"Tsiru’ wö sí, tso’ kukè ù̱ ki. Tcha̱’tak a̱ tsiru’ wö tchë́rki.",13.0427
+bzd_034,Be̱rö̀ këbata ka̱tso̱ e̱' yuwö̀.,"Ajkö́ yö̀na̱ shtö́kicha wa. E’ tso’ dalì é̱jkê̱ ése tsó̱ ie. I yö’tso burrîrî, i tso’ dalì tsó̱ ie.",5.6074
+bzd_041,Tamale̱' e̱ kulù wö̀pa tsè̱ke̱ wa sí̱ di' e̱na̱ wö̀ krì.,Chkö̀ alírke ù̱ a̱. Bö' ñá̱rke i dikî̱a̱. I pàbatchër sík wa. Bö' tak wa i alêke.,9.8845
+bzd_042,E' rö ukùö kukula i' talö̀lö̀ kö kímö. Wë̀na̱ e' tsa̱' mìkömi̱k kë́kömi̱k wa.,Kulë’ të́rka̱ kàltak ki̱. Wö́su̱k êk ák të́rka̱ të́shtë̂sh. Kàl wë́rke ta̱î̱.,9.7808
+bzd_048,Ù wö́su̱k sarûrû yë̂ki ye. Ie' sulàr kalö̀io bàkö ie' ù̱lâ ulúkuö.,"Ù sulë pámi̱k ta̱î̱ ká̱ wë́rke tsipátsipa, wö́su̱k ká̱ í̱te̱ idir.",9.8405

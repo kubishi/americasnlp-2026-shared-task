@@ -1,0 +1,13 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "yaduha-grn"
+version = "0.1.0"
+description = "Guaraní (grn) language stub for the Yaduha framework"
+requires-python = ">=3.10"
+dependencies = ["yaduha>=0.3"]
+
+[project.entry-points."yaduha.languages"]
+grn = "yaduha_grn:language"

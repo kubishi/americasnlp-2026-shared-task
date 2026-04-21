@@ -1,124 +1,93 @@
-# AmericasNLP 2026 Shared Task: Wixárika Image Captioning
+# AmericasNLP 2026 — LLM-Assisted RBMT for Image Captioning
 
-Evaluation framework for the [AmericasNLP 2026 Shared Task](https://github.com/AmericasNLP/americasnlp2026) on culturally grounded image captioning in Wixárika (Huichol, ISO 639-3: `hch`).
-
-Uses the [Yaduha](https://github.com/kubishi/yaduha-2) structured translation framework to generate Wixárika captions from images via OpenAI vision models, then evaluates against reference translations using ChrF++.
-
-## Project Structure
+Entry in the [AmericasNLP 2026 Shared Task on Cultural Image Captioning](https://americasnlp.org/2026_st.html). An agent reads the dev captions plus open-web references for each language and writes a Yaduha-compatible Pydantic grammar package. A VLM produces an English caption; that grammar deterministically renders it as a target-language caption. No training, no fine-tuning.
 
 ```
-.
-├── americasnlp2026/        # Shared task data (submodule)
-│   └── data/pilot/
-│       ├── wixarika.jsonl   # 20 pilot examples (Spanish + Wixárika captions)
-│       └── images/wixarika/ # Source images
-├── yaduha/                 # Yaduha translation framework (submodule)
-├── yaduha-hch/             # Wixárika language package (submodule)
-├── yaduha-ovp/             # Owens Valley Paiute language package (submodule)
-├── scripts/
-│   ├── evaluate.py         # Main evaluation script
-│   └── plot_results.py     # Results visualization
-├── results/
-│   └── evaluation_results.csv
-└── pyproject.toml          # uv workspace config
+image → [VLM] → English → [EnglishToSentencesTool] → Sentence → Sentence.__str__() → target
 ```
+
+## Results (dev set)
+
+| lang | organizer baseline | ours pipeline (LLM-RBMT) | ours direct (3-shot) |
+|---|--:|--:|--:|
+| bzd (Bribri)          | 7.57  | **11.17** (N=48) | 9.43 (N=50) |
+| grn (Guaraní)         | 20.82 | 15.70 (N=49)    | 18.37 (N=50) |
+| yua (Yucatec Maya)    | —     | **25.01** (N=49) | 18.59 (N=44) |
+| nlv (Orizaba Nahuatl) | 11.53 | **23.16** (N=50) | 21.56 (N=50) |
+| hch (Wixárika)        | 17.77 | 12.59 (N=44)*   | 18.14 (N=50) |
+| **avg (4 measurable)** | **14.43** | **18.16** | 16.88 |
+
+*Metric: ChrF++ (the shared task's Stage-1 ranking metric). Organizer baseline = Qwen3-VL-8B + Sheffield 2023 NLLB MT. Ours uses Claude Sonnet 4.5 for VLM + structured outputs.*
+
+*hch N=44/50: sporadic JSON-parse errors from yaduha's prompt-based `AnthropicAgent` — expected to close the gap once we swap in `client.messages.parse()`.*
+
+**Held-out validation (20 rows/lang, never shown to the generator agent):**
+
+| lang | pipeline | direct | Δ |
+|---|--:|--:|--:|
+| bzd | **10.77** | 8.74 | +2.03 |
+| grn | 15.15    | **18.96** | -3.81 |
+| yua | **24.49** | 19.85 | +4.64 |
+| nlv | **23.95** | 22.07 | +1.88 |
+| hch | 11.87    | **17.89** | -6.02 |
+
+## How it works
+
+1. `generate-language --iso <code>` runs an **Anthropic Opus 4.7 agent** with these tools: web search, read reference yaduha-{hch,ovp} packages, read training-slice captions, extract content-word frequencies, write files inside the target package, `validate_package`, `test_translate_english`, `compare_pipeline_to_targets`. The agent inspects the data, drafts a grammar, and iterates until validation + smoke tests look good.
+2. The generator only ever sees a deterministic **training slice** (30 of 50 dev rows); the other 20 are held out for honest scoring. The system prompt forbids hardcoded `if english == "..."` shortcuts and keys everything to structured `Sentence` inputs.
+3. The produced `yaduha-{iso}` package is a standalone Python package with Pydantic `Sentence` subclasses. `__str__()` on each sentence is deterministic Python — no LLM at render time. OOV lemmas render as `[english_lemma]`.
+4. `evaluate --method pipeline` runs image → Sonnet-4.5 VLM → English → `PipelineTranslator` (also Sonnet-4.5) → target. `evaluate --method direct --shots K` is the baseline.
+
+See [`DESIGN.md`](DESIGN.md) for the thesis, [`docs/bootstrap_language.md`](docs/bootstrap_language.md) for the generator workflow, and [`PROGRESS.md`](PROGRESS.md) for team notes.
 
 ## Setup
-
-Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/).
 
 ```bash
 git clone --recurse-submodules https://github.com/kubishi/americasnlp-2026-shared-task.git
 cd americasnlp-2026-shared-task
 uv sync
+echo "ANTHROPIC_API_KEY=sk-..." > .env
 ```
 
-Create a `.env` file with your OpenAI API key:
+Optional COMET scoring: `uv sync --extra comet` then `evaluate --comet`.
 
-```
-OPENAI_API_KEY=sk-...
-```
-
-## Evaluation
-
-### Captioning Methods
-
-Three approaches are compared for generating Wixárika captions from images:
-
-| Method | Description |
-|--------|-------------|
-| **structured** | Image sent to OpenAI vision model with structured outputs constrained to `yaduha-hch` sentence types (`SubjectVerbSentence`, `SubjectVerbObjectSentence`). Outputs are guaranteed to conform to the grammar model defined in `yaduha-hch`. |
-| **translator-pipeline** | Image captioned in English, then translated to Wixárika via `PipelineTranslator` using structured language outputs. |
-| **translator-agentic** | Image captioned in English, then translated to Wixárika via `AgenticTranslator` with vocabulary/grammar system prompt. Free-form generation, less constrained. |
-
-> **Note on linguistic accuracy:** The `yaduha-hch` language package was written using Claude, using the 20 pilot training examples and publicly available grammar references (Iturrioz Leza, ASJP, SIL). The authors do not speak Wixárika. The structured methods guarantee correctness *according to the written grammar model* (valid morphological concatenation, correct person prefixes, etc.), but we cannot guarantee that the model itself accurately represents the language. The grammar and vocabulary should be reviewed by a Wixárika speaker.
-
-### Running
+## Usage
 
 ```bash
-# Run evaluation (default: gpt-4o-mini)
-uv run python scripts/evaluate.py
+# Generate / improve a language package
+uv run americasnlp generate-language --iso bzd           # uses 30/20 train/val split
+uv run americasnlp generate-language --iso bzd --train-frac 1.0   # submission mode (all dev)
 
-# With a specific model
-uv run python scripts/evaluate.py --model gpt-4o
+# Evaluate on the dev set
+uv run americasnlp evaluate --language bribri --method pipeline
+uv run americasnlp evaluate --language bribri --method direct --shots 3
+uv run americasnlp evaluate --language bribri --method pipeline --val-only   # held-out 20 rows
 
-# Custom output path
-uv run python scripts/evaluate.py --output results/eval_gpt4o.csv
+# Produce a test-set submission JSONL
+uv run americasnlp submit --language bribri --method pipeline \
+    --output results/submissions/bribri_pipeline.jsonl
 ```
 
-The script saves results incrementally and skips already-completed entries on re-run.
+## Repository layout
 
-```bash
-# Generate plot from results
-uv run python scripts/plot_results.py
+```
+src/americasnlp/
+  captioners/{pipeline,direct}.py   # LLM-RBMT + direct prompting
+  generator/{agent,extract,validate,scaffold,split}.py   # the generator
+  evaluate.py submit.py cli.py data.py languages.py
+yaduha/ yaduha-hch/ yaduha-ovp/ yaduha-{bzd,grn,yua,nlv}/   # framework + language packages
+americasnlp2026/                                            # task data (submodule)
+docs/bootstrap_language.md
+results/dev/                        # eval artifacts
+DESIGN.md PROGRESS.md
 ```
 
-## Results
+## Pending
 
-Pilot evaluation on 20 Wixárika image captions using `gpt-4o-mini`:
+- Replace yaduha's prompt-based `AnthropicAgent` structured outputs with `client.messages.parse(output_format=...)` — should close the hch gap (6 of 50 rows currently hit JSON-parse errors).
+- Run generators with `--train-frac 1.0` for the final submission packages.
+- Run captioner on the test set on 2026-05-01.
 
-| Method | Mean ChrF++ | Min | Max | Errors |
-|--------|------------|-----|-----|--------|
-| structured | 8.55 | 3.87 | 14.30 | 0/20 |
-| translator-pipeline | 10.49 | 3.59 | 15.47 | 0/20 |
-| translator-agentic | 10.60* | 5.92 | 16.02 | 6/20 |
+## Sister projects
 
-*\*Mean computed over 14 successful translations only. 6 examples hit the output token limit.*
-
-### Observations
-
-- **translator-pipeline** is the most reliable method, completing all 20 examples with the highest overall mean ChrF++ (10.49).
-- **translator-agentic** achieves the highest individual scores when it works (max 16.02), but frequently hits the output token limit due to repetitive generation. The model tends to loop when producing free-form Wixárika text.
-- **structured** is the most constrained approach. It always produces valid output but is limited by the grammar model's coverage, concepts outside the vocabulary (e.g., "tractor", "green beans", "taco") appear as bracketed English placeholders.
-- All methods struggle with complex reference sentences. The Wixárika references in the pilot set contain sophisticated morphology (multi-prefix verb forms, clause chains, pragmatic particles) that far exceeds what the current grammar model can generate.
-- ChrF++ scores in the 8-15 range reflect partial lexical overlap rather than fluent translation. This is expected given the minimal grammar and vocabulary (~63 entries) in `yaduha-hch`.
-
-## TODO
-
-### Fix agentic translator bugs
-- The `translator-agentic` method hits the output token limit on 6/20 examples due to repetitive degeneration (looping phrases like `'i-kwai-t+ háne` endlessly)
-- `OpenAIAgent` was missing `max_tokens` support (now added with 4096 default): need to verify this resolves the failures and push the fix upstream to yaduha
-- Investigate whether the `AgenticTranslator` needs better stop/truncation logic or if the system prompt needs restructuring to prevent loops
-- Pydantic serialization warnings (`PydanticSerializationUnexpectedValue` on `parsed` field): harmless but should be fixed in yaduha's `AgentResponse` type annotations
-
-### Improve the Wixárika language model (`yaduha-hch`)
-- **Expand vocabulary**: Currently only 37 nouns, 13 transitive verbs, 13 intransitive verbs: many image concepts fall back to bracketed English placeholders
-- **Add sentence types**: Only SV and SOV patterns are modeled; add support for locative sentences, possessive constructions, copular sentences, and multi-clause structures
-- **Richer morphology**: Model verb serialization, applicatives, causatives, and more complex prefix stacking (the reference translations use forms like `me yu ku há arit+wat+` that are well beyond current coverage)
-- **Evaluation-driven development**: Use the 20 pilot reference translations as a test suite. Measure ChrF++ improvement as vocabulary and grammar are expanded. Look for additional Wixárika corpora or wordlists (Iturrioz Leza grammars, SIL resources, ASJP) to bootstrap coverage
-
-### Explore other approaches and prepare for additional languages
-- Try different base models (`gpt-4o` vs `gpt-4o-mini`) and compare cost/quality tradeoffs
-- Experiment with few-shot prompting using the pilot training examples as in-context demonstrations
-- Investigate fine-tuning or retrieval-augmented generation for low-resource translation
-- The shared task will announce additional languages: design the evaluation pipeline to be language-agnostic so new `yaduha-*` packages can be plugged in with minimal changes
-- Consider ensemble methods (e.g., structured + agentic with reranking by ChrF++ against back-translations)
-
-## Dependencies
-
-- [yaduha](https://github.com/kubishi/yaduha-2): Structured translation framework
-- [yaduha-hch](https://github.com/kubishi/yaduha-hch): Wixárika language package
-- [sacrebleu](https://github.com/mjpost/sacrebleu): ChrF++ scoring
-- [matplotlib](https://matplotlib.org/): Results visualization
-- [openai](https://github.com/openai/openai-python): Vision model API
-
+[yaduha](https://github.com/kubishi/yaduha-2) (framework) · [yaduha-hch](https://github.com/kubishi/yaduha-hch) · [yaduha-ovp](https://github.com/kubishi/yaduha-ovp) · [conlang-claude](https://github.com/kubishi/conlang-claude) (same package shape for synthetic conlangs)

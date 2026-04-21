@@ -2,22 +2,23 @@
 
 Working doc for team coordination. Everyone: please add updates under your own section and keep it terse. Dates in YYYY-MM-DD.
 
-## Competition Timeline (from [task page](https://turing.iimas.unam.mx/americasnlp/2026_st.html))
+## Competition Timeline (from [task page](https://americasnlp.org/2026_st.html))
 
 | Date | Milestone | Status |
 |------|-----------|--------|
 | 2026-02-20 | Pilot data + baseline | done |
-| 2026-03-01 | Dev sets released (50 ex / language) | done — **not yet integrated** |
+| 2026-03-01 | Dev sets released (50 ex / language) | done — **integrated 2026-04-20** |
 | 2026-04-01 | Surprise language | announced |
-| 2026-04-13 | Orizaba Nahuatl added | announced (yesterday) |
-| **2026-04-20** | **Test sets released** | **6 days out** |
-| **2026-05-01** | **Submission deadline** | **17 days out** |
+| 2026-04-13 | Orizaba Nahuatl added | announced |
+| **2026-04-20** | **Test sets released** | **today** |
+| **2026-05-01** | **Submission deadline** | **11 days out** |
 | 2026-05-08 | Winner announcement | — |
 | 2026-05-13 | System description paper due | — |
 | 2026-05-22 | Camera-ready | — |
 
 **Target languages (5):** Bribri, Guaraní, Yucatec Maya, Wixárika, Orizaba Nahuatl.
 **Evaluation:** ChrF++ for all systems (Stage 1), then human eval of top-5 (Stage 2).
+**System direction (set 2026-04-20):** LLM-assisted RBMT — image → VLM English caption → yaduha `PipelineTranslator` constrained by per-language Pydantic grammar → target caption. Direct VLM prompting (zero-shot, few-shot) shipped only as comparison baselines. The agentic translator is dropped. See `DESIGN.md`.
 
 ---
 
@@ -87,6 +88,29 @@ Working doc for team coordination. Everyone: please add updates under your own s
 
 ### Jared Coleman (supervisor)
 - **Notes / decisions needed:**
+- **2026-04-20 — direction reset:**
+  - Reframed the project around the LLM-RBMT thesis: a coding agent authors a
+    Yaduha-compatible Pydantic grammar per language, the VLM only emits English,
+    and the rendering step is deterministic. Direct VLM prompting (zero / 3-shot)
+    stays as comparison baselines. Agentic translation removed.
+  - Restructured the repo: `src/americasnlp/` package with a `python -m
+    americasnlp {evaluate,submit}` CLI, a `Captioner` protocol, and clean dev /
+    submission writers. See `DESIGN.md`.
+  - Initialized submodules (none of the previous code actually ran without them).
+  - Pulled the latest americasnlp2026 submodule so dev sets are present.
+  - Bribri image-format bug fixed at the source: `data.image_data_url` re-encodes
+    every image through Pillow, so mislabelled `.jpg`/WebP files no longer break
+    the OpenAI vision API.
+  - Stubbed `yaduha-{bzd,grn,yua,nlv}` as minimum-viable grammar packages so the
+    pipeline runs end-to-end for all 5 languages today. They are honest stubs —
+    correct typological word order, ~15-noun / 10-verb starter vocabularies, no
+    morphology beyond bare lemma + tense particle. ChrF++ from the pipeline on
+    these will be near floor until the bootstrap workflow expands them.
+  - Wrote `docs/bootstrap_language.md` — the Claude prompt for authoring a real
+    `yaduha-{iso}` package and the acceptance checklist. **This is the artifact
+    we will report on in the system description paper.**
+  - Deleted dead code: `main.py`, `scripts/{evaluate,test_caption,make_submission,baseline}.py`.
+    All recoverable from git.
 
 ---
 
