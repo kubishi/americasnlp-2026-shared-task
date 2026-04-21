@@ -115,10 +115,10 @@ def cmd_generate_language(args: argparse.Namespace) -> None:
 def _add_common_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--language", required=True, choices=list(LANGUAGES))
     p.add_argument("--method", required=True, choices=["pipeline", "direct"])
-    p.add_argument("--vlm", default="claude-sonnet-4-5",
-                   help="Anthropic vision model (default: claude-sonnet-4-5)")
+    p.add_argument("--vlm", default="gpt-4o-mini",
+                   help="OpenAI vision model (default: gpt-4o-mini)")
     p.add_argument("--translator", default=None,
-                   help="Anthropic model for the structured-translation step "
+                   help="OpenAI model for the structured-translation step "
                         "(pipeline method only; defaults to --vlm)")
     p.add_argument("--shots", type=int, default=0,
                    help="Few-shot demonstrations (direct method only; default: 0)")

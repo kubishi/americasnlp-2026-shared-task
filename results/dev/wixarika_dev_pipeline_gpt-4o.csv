@@ -1,0 +1,51 @@
+id,predicted_caption,target_caption,chrf
+hch_021,Kewa p+ma. P+h+k+. P+h+k+. P+h+k+. P+h+k+. Tsie memama. Tsie memama. Kewa p+ma. Há  p+h+k+. Taheima  kewa p+ma. Taheima  p+h+k+. Taheima  p+h+k+.,Aitá há puye háne tsiere tek+a huyé tiuka háne mana te+teri memeuka neniere kiekari muwa heye mamaku.,11.7944
+hch_022,Huyé  kewa p+ma. Huyé. Kiyete  tsie memama. Me. Taheima.,"Huyé wixarika húyeya m+ya ke m+tikuyeika, ya ane k+a huyé muta wewi hánu ku inet+ aitsie miku hánitsit+a.",11.4203
+hch_023,Há apá'aurie p+ma.,"Huyé muye hápane ya xeik+a aitá, yá p+ré huyé wixarika ya pauka muyé aník+.",5.4356
+hch_024,Huyé ramarute'aurie p+ma.,"Kiekari mukumáne huyé m+xuawe turuki m+ ka heuta háke tsie nait+ aix+ p+ ka tiu ane, reu yewet+ p+ áne x+ ka m+pa+ ti anenike nait+ kí aix+ p+ anenenike.",4.2288
+hch_025,Uká huyétsie p+ma metá tit+. 'uxi ukátsie p+ma. Huyétsie p+ma.,"Turuki m+k+net+we wixaritari wa kie meu ti háke, heiwa m+ ti murike huyetá ú miet+ m+ kauye at+arieni huyetá meyu há yewa.",8.4748
+hch_026,Teyupani  kewa p+ma metá ramaru teyupani'aurie p+ma. Wixáritari  me'+k+t+. Huyétsie p+ma.,Teyupanie titetewat+ mu ku út+ka kiekari tsie tsepá kewa yak+ m+yeyeu ya xeik+a ám+yeyeu tsie muwa tsiere p+ rá yu ye xeiya.,16.9430
+hch_027,Wixáritari mekat+t+ metá wixáritari memiet+. Wixárika kareta t+. Teyupani  kewa p+ma.,Kiekari m+tama te+teri me mayu ti xexe+riwa hi pat+ me xeiya ya xeik+a me xeiya tatuwani mewa yeka.,18.4170
+hch_028,Ramarute'aurie p+ma metá te+teri mexa met+.,Teiwarit+a wixaritari mem+ tama ya xeik+a heiwa muwa meuyeneni te meu uwa heiwa yu ku aitanet+ heiwa yu ku há rerutanet+ mana tá kemari tsie puyu hek+a.,8.7163
+hch_029,Kewa p+ma metá   met+. Ramaru'aurie p+ma metá   tsie memama. T+ metá taheima.,"Há tsukari ma wewiya kiekari hix+apa ya xeik+a mana uwá p+ tuiyane turuki tsixi wa hetsie wa+ kawat+, taxari manuye k+ka ya witárita.",11.1927
+hch_030,Huyé kieri'aurie p+ma.,Turuki huyeya yemuri ut+a kwauxa tsie reyetewakaku kiekari mukutetewa ya tiu anekaku meuyeneni.,6.0538
+hch_031,Kewa p+ma. Tsie p+ma. Kiye  tsie p+ma. Kieriete  kewa memama. Haite taheimakewa memama.,"Huyé tek+a mu ku hápane heiwa neniereme temayeit+wa yemuri aitá, hát+a, aki ut+a nait+ m+tá hek+a.",12.8950
+hch_032,Kiye  tsie p+ma. Kiye  waxeiya. Tsie p+ma. Kieriete taheimakewa memama. Kwie  wa.,Kwáta wixarika ikwaiya yeuta h+ritsie m+ xuawe war+kariet+ yan+st+ni y+y+rit+ máyu kwáa.,13.2002
+hch_033,Huyé  tsie p+ma. Huyétsie p+ma metá   tsie p+ma. Kieriete  kewa memama. Taheimakewa memama.,"Huyé atewa mieme wixarika, huyeya, turuki, metá tsiere tewáxi mana me muk+k+ka.",22.2529
+hch_034,Temawiet+te  tsie memama metá   kewa p+ma.,Wixarika im+arieya utsiet+ uti xainék+ ya xeik+a kemarite tiuti t+nirék+.,10.2225
+hch_035,Temawiet+te  tsie memama metá   tsie memama.,"Ikwaite, kemarite, im+arite, tinait+ ti ut+t+ nunutsi m+ kauti axe tsie.",12.0810
+hch_036,Kemarite  mexeiya metá temawiet+. Kwietsie p+ma. Temawiet+. Wawewiya.,Wixarika yu kie ya p+ ti utá wapait+ tiuye yetsa ya xeik+a m+ tiu ti +xa tsie yu kemarite.,15.1251
+hch_037,Wixárika kwietsie p+ma metá kat+t+. Hayarite mewat+.,"Ikú yualawime uyari, mana ketari mi ka xakwitsa ti pini ketari me wa ku t+x+.",15.2430
+hch_038,Kewa p+ma metá wixárika  kewa p+ma.,Kareta mat+a puretini wixarika mana ti ti kwa at+ kareta tsie p+ ye húpu ya xeik+a yu pinite mana pait+ p+ ti ye pine.,7.2773
+hch_039,Wixárika  parewit+ metá  meranakat+t+.,Uká yu t+xi p+nat+ ya xeik+a mata tsie papaa p+name mana naime rá pit+.,13.4886
+hch_040,Tsie p+ma. 'aurie p+ma. 'aurie p+ma. Tete p+h+k+. Kewa memama.,Ikwai ya n+ts+ itsari tai tsie p+ tiu ka wewiwa puretini wewiyakame tsie heiwa tenari tsie.,10.5644
+hch_041,Tetetekewa p+ma metá   tsie p+ma. Mek+. Kewa p+ma.,"Kuraru payu wewiwa tixa+t+ m+tiukunani ite+ri, m+ya tewáxi muwa mem+ te+ +nar+wani k+.",8.9209
+hch_042,Kiye  kewa p+ma. Ramarute  kewa memama. Kewa p+ma. Kwie  kewa p+ma. Kewa memama.,Mat+ari x+ka uká wiyé o (witari) x+ka hanuyeyaní tats+arí witarita yu katsut+aka.,7.5760
+hch_043,Ramaru  kewa p+ma metá uwenite  'aurie memama. Tsie p+ma metá   tsie p+ma. Kwietsie memama metá  kwietsie memama. Kaku memama.,"Pínite patsixa ti mieme m+ti kaw+w+re kem+reupa+me hipat+ wai meuti n+ +', hipat+ nawá uwá ti niu t+kait+'.",13.1621
+hch_044,Kwietsie memama. Tsie p+ma. Uweni  kewa p+ma. Temawiet+  kewa p+ma.,"Nawá mawarika tsie mieme ya xeik+a wirikuta, tukipa, its+kame m+rewatiwiya naitsarie peuka tuirike peuti n+it+ariwa, yuimakwaxa, patsixá.",10.6312
+hch_045,Wixáritari  tsie memama. Uká  ranakat+t+. 'uxi  wa'+k+t+. Teví kemari ranakat+t+. 'aurie memama.,"Te+teri me mayuti xexe+riwa xamaru t+a, meteta mariet+ kem+ti ku xaxatsiwa.",18.7166
+hch_046,Kaku memama metá   kewa p+ma. Ramaru  kewa p+ma. Kiyete'aurie p+ma. Wixáritari ramaru'aurie memama.,Wixarika ix+arari matinenet+wa mat+ari p+ránu taw+w+t+wa aix+ m+tiyu he k+akaku m+rayu kemakak+.,14.4990
+hch_047,Kiye  tsie p+ma. Kierietetsie p+ma. Huyé tita.,Hát+a há x+ka hewayeneni witarita nait+ pe+y+y+ipike atewa puku at+yeika.,8.9571
+hch_048,Ramarute  p+h+k+. Ramarute  mewaxeiya. Xeiya. Wa. Kiyete  me. Kiyete  me. Taheima  p+h+k+.,"Kiekari manu ye háne yak+ m+yeyeu yu tsata kareta peuti ú, yu nait+mat+ kí x+nariya k+ wewiyat+kait+.",12.2603
+hch_049,Metá   kewa p+ma. Taheima   metá  taheimakewa memama. Tsie memama. . Me.,Muku haiyata x+ka ka wiyer+meni hipat+ e'tsiya me mu ka ts+ts+t+wa hipat+ yu tewamá mem+ te wara ku k+w+t+wa.,10.5938
+hch_050,Ramaru  kewa p+ma.,"Ki muxuawe yu tsata p+ anene ik+xeniu t+ri mem+ te wa +ki t+arie aix+ p+ reuku wewiyat+ká, wa hetsie tiu unek+.",4.1894
+hch_051,Teví ramaru'aurie p+ma metá uká ramaru'aurie p+ma. Teví  ranakat+. Teví kemari ranakat+. Uká  ranakat+. Mexeiyat+. Wixárika ramaru t+.,Tukipa m+rayu ye xeiyanitsie kawiteru tsixi me puyu ku xexe+riwa mawarika pátineika ya xeik+a hákiya.,15.1227
+hch_052,Kiye kwietsie p+ma metá taheima  tsie p+ma. Tsie p+ma metá   tsie p+ma. Tsie memama.,"Kiekari m+ixa muyu heh+a am+reu tetewi matiwat+, k+yexi a papat+ hurawa rí pumawe k+ ewemete ri naime me puti wite ya nuts+ kuraru, ramaru mepa yeit+a.",10.4139
+hch_053,Kewa p+ma. Kewa p+ma. Kewa memama. Kieriete  kewa memama. Taheima  p+h+k+.,"Ite+ri meu xuawe ya hipat+ ka ite+tsiekame m+tiuka xuawerike ta ikwai te ma yeit+wa mara mat+a tse+ye m+k+ wixarika, neuxi, wak+ri p+ ikwaiya aimieme pi í te+ta.",9.8082
+hch_054,Kieriete taheimakewa memama.,"Yemuri meu ti teí h+ritsie x+ka peu ti mieni wa+kawa pe mú xeiya, xa+tsie kiekari mukumane mayu hé k+k+a te mí ka ter+wa ya pa+meme.",5.9101
+hch_055,Kewa p+ma. Kiyete  kewa memama. Pait+ p+ma. Kewa memama. Taheima.,Kiepa m+reuti pine heiwa muti hauxini yan+ts+ muti ekwa hipat+ hurawa há maneikat+ká mi kwewieni yu ta kwá.,10.1769
+hch_056,Kiekari  p+h+k+. Kiekari kíte waxeiya. Kiyete mek+. Wa. Taheima  p+h+k+.,"Kiekari hát+a muku mane yayeyeut+ hipat+ turuki, mawiwe muye axé me xeiya.",18.6638
+hch_057,. Kaku p+ma.,Hawaik+ kiekari pema' ye aní tsie ik+meri p+tiu xeiya ya m+ti a'nene mana puye werar+wa kename ré parewiya kiekaritsie ya pa+ memek+.,2.2258
+hch_058,Huyé  kewa p+ma.,A kie pe ma ye aximeni tsie peuyu tema wieka a iwama a paa'pama pe m+ wa re xeiya k+.,4.0806
+hch_059,Kewa p+ma. Wixárika  tsie p+ma.,"Kareta, kí, ramaru, m+k+ p+h+k+ ti útame kukutsume, et+piwame wixarika kiya h+ritsie meuti ú.",7.9796
+hch_060,Háne  kewa p+ma. Háne  waxeiya metá háne  waxeiya. Háne'aurie memama.,Huyé aitá hipat+ hápa mú hapane wapait+ muyaní x+ka há hewayeneni hipat+ mem+ ka há hauwawe wa hetsiemieme p+ h+k+.,12.5225
+hch_061,Háne  p+h+k+. Háne. Háne'aurie memama. Háne'aurie memama. P+h+k+. Taheima  p+h+k+.,Huyé te+ teri me man+ k+ka witarita há x+ka kwinie paka k+yexik+ wewiyat+.,12.3869
+hch_062,P+h+k+. Kewa p+ma. Taheima  p+h+k+. Kiyete  tsie memama.,"H+ri tsie meu teu ti tuaya wixaritari, ya xeik+a neuxite hipat+ p+ kaka+yarixi.",12.0119
+hch_063,Wixárika miet+. Kí huyétsie p+ma. Kiye huyétsie p+ma.,"Ta huyé maye hápane ta kie, heiwa turuki meu ta háke mana muye yeika metá tsiere tame.",11.9573
+hch_064,Kwietsie memama.,"Áki ut+a taxata heiwaka há muka wauket+ká há úte, ya xiekari xeik+a muyuku hayeikawa ke+nat+.",3.7215
+hch_065,Ramarute kiyete'aurie memama metá kieri  kewa p+ma.,Tsepa kewa t+rí ti wa +' kit+wame kí etsikuera titetewat+ mu xuawe.,14.8086
+hch_066,Pu'ukute memiet+. Wixárika. Wixárika kiyete'aurie p+ma.,"Kiekari meuti ú, hipat+ me mi kunát+ka tewáxi muwa me teu háx+anik+.",14.7457
+hch_067,Kiye  kewa p+ma metá kiye ti. Taheima  p+h+k+. Kiye'aurie p+ma.,"Hipat+ ta kie p+ka hu háya a puku tetewa aimieme pú wáki, puyu hék+a.",13.7931
+hch_068,Kewa memama. Kiye. Kiekarikewa memama. Kieriete  kewa memama.,"Kiekari heuka ix+ ariet+ tita mana m+ti xuawe ma' he k+a h+'ri, hát+a.",15.7347
+hch_069,Huyé  kewa p+ma metá ramarute huyétsie memama. Kiye  tsie p+ma metá   kewa p+ma. Taheima  p+h+k+.,"Kiekari mukumarix+a hipat+ muyu wewiet+we me pikamana ri, hik+ turukitsixi me wa in+atat+ tit+ reu miet+ huyé m+ni tá há x+a.",13.4688
+hch_070,Teyupani  kewa p+ma. Te+teri memiet+. Wixárika miet+ metá 'uxi miet+. Kareta  kewa p+ma.,Teyupanie ti tetewat+ muku ut+ka heiwaka tsaturi me muku ut+ká ta+tana hipat+ me m+ wara ye xeiya.,19.4786

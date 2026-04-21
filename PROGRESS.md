@@ -88,6 +88,13 @@ Working doc for team coordination. Everyone: please add updates under your own s
 
 ### Jared Coleman (supervisor)
 - **Notes / decisions needed:**
+- **2026-04-21 — model exploration + cost discipline:**
+  - Test set released (990 rows: bzd 267, grn 110, yua 212, nlv 200, hch 201). Submodule bumped, format already matches our submission writer.
+  - Captioners refactored to dispatch on model-name prefix: `claude-*` → Anthropic, anything else → OpenAI. Both VLM and translator paths.
+  - Generated 4 model variants of dev pipeline (claude-sonnet-4-5, gpt-4o-mini, gpt-4o, gpt-5). Best per language: bzd → claude (11.17, +3.60 over baseline), grn → gpt-5 (17.18, still -3.64 vs baseline), yua → claude (25.01, baseline n/a), nlv → gpt-5 (23.82, +12.29), hch → gpt-5 (15.52, -2.25). Best-per-lang average 16.92 vs organizer baseline 14.42.
+  - **Cost discipline going forward (in README):** default to `gpt-4o-mini` for iteration (~$1/sweep). Reserve `gpt-5` (~$25/sweep) and `claude-sonnet-4-5` (~$5/sweep) for final submission and one sanity-check post-refactor. Use the dev matrix to predict lift; don't re-sweep strong models for marginal changes.
+  - Slack updates sent to Diego + Nick on the new direction + dev numbers.
+  - Test-set submissions deferred until we're ready to finalize.
 - **2026-04-20 — direction reset:**
   - Reframed the project around the LLM-RBMT thesis: a coding agent authors a
     Yaduha-compatible Pydantic grammar per language, the VLM only emits English,

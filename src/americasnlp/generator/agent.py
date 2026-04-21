@@ -561,7 +561,7 @@ def _compare_pipeline_to_targets(n: int, ctx: GeneratorContext) -> str:
     return json.dumps(out, ensure_ascii=False, indent=2)
 
 
-SMOKE_TEST_MODEL = "claude-sonnet-4-5"
+SMOKE_TEST_MODEL = "gpt-4o-mini"
 
 
 def _smoke_test_translate(english: str, ctx: GeneratorContext) -> str:
@@ -569,12 +569,12 @@ def _smoke_test_translate(english: str, ctx: GeneratorContext) -> str:
 
     Always reloads the package first so successive calls reflect edits the
     agent just made. Returns a JSON blob with target + back-translation, or
-    a descriptive ERROR string. Uses the same Anthropic model the evaluation
+    a descriptive ERROR string. Uses the same OpenAI model the evaluation
     pipeline uses, so what the agent sees here matches what eval will see.
     """
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
-        return ("ERROR: ANTHROPIC_API_KEY is not set. The smoke-test tool "
+        return ("ERROR: OPENAI_API_KEY is not set. The smoke-test tool "
                 "needs it to drive the structured-output translation step. "
                 "Use `validate_package` instead until the key is available.")
 
@@ -584,10 +584,9 @@ def _smoke_test_translate(english: str, ctx: GeneratorContext) -> str:
         return f"ERROR: package import failed: {type(exc).__name__}: {exc}"
 
     try:
+        from yaduha.agent.openai import OpenAIAgent
         from yaduha.loader import LanguageLoader
         from yaduha.translator.pipeline import PipelineTranslator
-
-        from americasnlp._anthropic import AnthropicAgent
     except ImportError as exc:
         return f"ERROR: yaduha import failed: {exc}"
 
@@ -603,7 +602,7 @@ def _smoke_test_translate(english: str, ctx: GeneratorContext) -> str:
                 "smoke-testing.")
 
     translator = PipelineTranslator(
-        agent=AnthropicAgent(model=SMOKE_TEST_MODEL, api_key=api_key),
+        agent=OpenAIAgent(model=SMOKE_TEST_MODEL, api_key=api_key),
         SentenceType=language.sentence_types,
     )
 
