@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "yaduha-hch"
+version = "0.1.0"
+description = "Wixárika (Huichol) language package for the Yaduha framework"
+requires-python = ">=3.10"
+dependencies = [
+    "yaduha>=0.3",
+]
+
+[project.entry-points."yaduha.languages"]
+hch = "yaduha_hch:language"
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+]

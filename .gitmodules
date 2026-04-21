@@ -6,10 +6,6 @@
 	path = yaduha-ovp
 	url = https://github.com/kubishi/yaduha-ovp.git
 	branch = main
-[submodule "yaduha-hch"]
-	path = yaduha-hch
-	url = https://github.com/kubishi/yaduha-hch.git
-	branch = main
 [submodule "yaduha"]
 	path = yaduha
 	url = https://github.com/kubishi/yaduha-2.git
