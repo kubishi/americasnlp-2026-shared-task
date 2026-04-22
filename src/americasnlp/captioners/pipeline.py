@@ -29,16 +29,92 @@ from americasnlp.captioners import CaptionResult
 from americasnlp.languages import LanguageConfig
 
 
-CAPTION_SYSTEM_PROMPT = (
-    "You describe a photograph in 3–6 short, literal English sentences. "
-    "Use only simple grammar: subject–verb, subject–verb–object, "
-    "'X is Y' (predicate adjective or noun), 'X is at/in/on Y' (locative), "
-    "or 'X has Y' (possessive). Each sentence should make exactly one "
-    "claim. Cover: who or what is in the image, what they are doing, "
-    "where they are, and notable properties (colour, size, material). "
-    "Prefer common, concrete nouns and verbs. No commentary, no quotation "
-    "marks, no bullet points — just the sentences, one per line."
+CAPTION_SYSTEM_PROMPT_BASE = (
+    "Describe the photograph in literal English. Cover what you see: "
+    "people, animals, objects, what's happening, where it is, and "
+    "notable properties. No commentary, no quotation marks, no bullet "
+    "points — just the description.\n\n"
 )
+
+CAPTION_VOCAB_HEADER = (
+    "The downstream translator's English vocabulary is limited. **When the "
+    "literal word for what you see falls outside the listed lemmas, prefer "
+    "a hypernym from the list** (e.g. chihuahua → dog, mansion → house, "
+    "shaman → person). When the literal word IS in the list, use it as-is. "
+    "The goal is to minimize unrenderable words downstream, not to "
+    "oversimplify accurate descriptions.\n\n"
+    "Available {name} vocabulary:\n{vocab_block}"
+)
+
+
+def _autobuild_vocab_string(language: Any) -> str:
+    """Default vocabulary description: bullet lists of lemma names from the
+    package's NOUNS/TRANSITIVE_VERBS/INTRANSITIVE_VERBS/ADJECTIVES.
+
+    Used when the language package doesn't define its own `get_vocab()`.
+    """
+    iso = language.code
+    try:
+        import importlib
+        vocab = importlib.import_module(f"yaduha_{iso}.vocab")
+    except Exception:  # noqa: BLE001
+        return ""
+
+    def _lemmas(attr: str) -> list[str]:
+        entries = getattr(vocab, attr, None)
+        if entries is None:
+            return []
+        out: list[str] = []
+        for e in entries:
+            if hasattr(e, "english"):
+                out.append(e.english)
+            elif hasattr(e, "value") and isinstance(e.value, str):
+                out.append(e.value)
+        return out
+
+    sections: list[tuple[str, list[str]]] = [
+        ("nouns", _lemmas("NOUNS")),
+        ("transitive verbs", _lemmas("TRANSITIVE_VERBS")),
+        ("intransitive verbs", _lemmas("INTRANSITIVE_VERBS")),
+        ("adjectives", _lemmas("ADJECTIVES")),
+    ]
+    lines = [f"  - {label}: {', '.join(sorted(items))}"
+             for label, items in sections if items]
+    return "\n".join(lines)
+
+
+def _resolve_vocab_string(language: Any) -> str:
+    """Return the per-language vocabulary description for the caption prompt.
+
+    Each `yaduha_{iso}` package may optionally define a top-level
+    `get_vocab() -> str` callable that returns a free-form description of
+    its vocabulary, morphology rules, register notes, common compounds,
+    etc. The captioner uses that string verbatim when present. Otherwise
+    we fall back to a default bullet list assembled from the package's
+    NOUNS/TRANSITIVE_VERBS/INTRANSITIVE_VERBS/ADJECTIVES.
+    """
+    iso = language.code
+    try:
+        import importlib
+        mod = importlib.import_module(f"yaduha_{iso}")
+        getter = getattr(mod, "get_vocab", None)
+        if callable(getter):
+            result = getter()
+            if isinstance(result, str) and result.strip():
+                return result.strip()
+    except Exception:  # noqa: BLE001
+        pass
+    return _autobuild_vocab_string(language)
+
+
+def _build_caption_prompt(language: Any) -> str:
+    vocab_block = _resolve_vocab_string(language)
+    if not vocab_block:
+        return CAPTION_SYSTEM_PROMPT_BASE
+    return CAPTION_SYSTEM_PROMPT_BASE + CAPTION_VOCAB_HEADER.format(
+        name=language.name,
+        vocab_block=vocab_block,
+    )
 
 
 def _is_anthropic_model(model: str) -> bool:
@@ -46,6 +122,7 @@ def _is_anthropic_model(model: str) -> bool:
 
 
 def _vlm_caption_english_openai(model: str, image_path: Path,
+                                system_prompt: str,
                                 use_ollama: bool = False) -> str:
     from americasnlp._openai import image_data_url, model_kwargs
     if use_ollama:
@@ -63,7 +140,7 @@ def _vlm_caption_english_openai(model: str, image_path: Path,
     resp = client.chat.completions.create(
         model=eff_model,
         messages=[
-            {"role": "system", "content": CAPTION_SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": [
                 {"type": "image_url",
                  "image_url": {"url": image_data_url(image_path), "detail": "auto"}},
@@ -75,14 +152,15 @@ def _vlm_caption_english_openai(model: str, image_path: Path,
     return (resp.choices[0].message.content or "").strip()
 
 
-def _vlm_caption_english_anthropic(model: str, image_path: Path) -> str:
+def _vlm_caption_english_anthropic(model: str, image_path: Path,
+                                   system_prompt: str) -> str:
     import anthropic
     from americasnlp._anthropic import image_block
     client = anthropic.Anthropic()
     resp = client.messages.create(
         model=model,
         max_tokens=512,
-        system=[{"type": "text", "text": CAPTION_SYSTEM_PROMPT,
+        system=[{"type": "text", "text": system_prompt,
                  "cache_control": {"type": "ephemeral"}}],
         messages=[{"role": "user", "content": [
             image_block(image_path),
@@ -92,14 +170,16 @@ def _vlm_caption_english_anthropic(model: str, image_path: Path) -> str:
     return next((b.text for b in resp.content if b.type == "text"), "").strip()
 
 
-def _vlm_caption_english(model: str, image_path: Path) -> str:
+def _vlm_caption_english(model: str, image_path: Path,
+                         system_prompt: str) -> str:
     from americasnlp._ollama import is_ollama_model
     if _is_anthropic_model(model):
-        text = _vlm_caption_english_anthropic(model, image_path)
+        text = _vlm_caption_english_anthropic(model, image_path, system_prompt)
     elif is_ollama_model(model):
-        text = _vlm_caption_english_openai(model, image_path, use_ollama=True)
+        text = _vlm_caption_english_openai(
+            model, image_path, system_prompt, use_ollama=True)
     else:
-        text = _vlm_caption_english_openai(model, image_path)
+        text = _vlm_caption_english_openai(model, image_path, system_prompt)
     text = text.strip()
     if len(text) >= 2 and text[0] == text[-1] and text[0] in ('"', "'", "“"):
         text = text[1:-1].strip()
@@ -170,13 +250,15 @@ class PipelineCaptioner:
             if not os.environ.get("OPENAI_API_KEY"):
                 raise RuntimeError("OPENAI_API_KEY not set")
         self._language = LanguageLoader.load_language(self.lang.iso)
+        self._caption_prompt = _build_caption_prompt(self._language)
         self._translator = PipelineTranslator(
             agent=_make_translator_agent(self.translator_model),
             SentenceType=self._language.sentence_types,
         )
 
     def caption(self, record: dict, image_path: Path) -> CaptionResult:
-        english = _vlm_caption_english(self.vlm_model, image_path)
+        english = _vlm_caption_english(
+            self.vlm_model, image_path, self._caption_prompt)
         translation = self._translator.translate(english)
         return CaptionResult(
             target=translation.target.strip(),
