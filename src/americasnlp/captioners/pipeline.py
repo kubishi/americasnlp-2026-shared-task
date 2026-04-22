@@ -36,14 +36,17 @@ CAPTION_SYSTEM_PROMPT_BASE = (
     "points — just the description.\n\n"
 )
 
-CAPTION_VOCAB_HEADER = (
-    "The downstream translator's English vocabulary is limited. **When the "
-    "literal word for what you see falls outside the listed lemmas, prefer "
-    "a hypernym from the list** (e.g. chihuahua → dog, mansion → house, "
-    "shaman → person). When the literal word IS in the list, use it as-is. "
-    "The goal is to minimize unrenderable words downstream, not to "
-    "oversimplify accurate descriptions.\n\n"
-    "Available {name} vocabulary:\n{vocab_block}"
+CAPTION_GRAMMAR_HEADER = (
+    "After you describe the image, a downstream step will recast your "
+    "English to fit the {name} grammar below. Producing English that's "
+    "naturally compatible with these patterns helps that step, but "
+    "don't twist the description into knots — clarity wins over "
+    "alignment.\n\n"
+    "**When the literal word for what you see falls outside the listed "
+    "lemmas, prefer a hypernym from the list** (e.g. chihuahua → dog, "
+    "mansion → house, shaman → person). When the literal word IS in "
+    "the list, use it as-is.\n\n"
+    "{name} grammar:\n{grammar_block}"
 )
 
 
@@ -83,6 +86,132 @@ def _autobuild_vocab_string(language: Any) -> str:
     return "\n".join(lines)
 
 
+def _autobuild_grammar_string(language: Any) -> str:
+    """Auto-derived grammar description from each Sentence type's Pydantic
+    spec. Lists each sentence type's fields (with type names), then lists
+    every distinct sub-model and enum referenced anywhere — once each —
+    expanded with their fields and descriptions (which already include
+    the package's vocabulary lists, since vocab.py lemmas are surfaced
+    via each lemma-typed Field's `json_schema_extra['description']`).
+
+    No per-language work needed; the spec IS the grammar.
+    """
+    import enum
+    import typing
+
+    from pydantic import BaseModel
+
+    referenced_models: dict[str, type[BaseModel]] = {}
+    referenced_enums: dict[str, type[enum.Enum]] = {}
+
+    def _record(annotation: Any) -> None:
+        origin = typing.get_origin(annotation)
+        if origin is typing.Union:
+            for a in typing.get_args(annotation):
+                if a is not type(None):
+                    _record(a)
+            return
+        if origin in (list, tuple):
+            for a in typing.get_args(annotation):
+                _record(a)
+            return
+        if isinstance(annotation, type):
+            if issubclass(annotation, enum.Enum):
+                referenced_enums[annotation.__name__] = annotation
+            elif issubclass(annotation, BaseModel):
+                if annotation.__name__ in referenced_models:
+                    return
+                referenced_models[annotation.__name__] = annotation
+                # Recurse into this sub-model's fields
+                for finfo in annotation.model_fields.values():
+                    if finfo.annotation is not None:
+                        _record(finfo.annotation)
+
+    def _format(annotation: Any) -> str:
+        origin = typing.get_origin(annotation)
+        args = typing.get_args(annotation)
+        if origin is typing.Union:
+            parts = [a for a in args if a is not type(None)]
+            if len(parts) == 1:
+                return _format(parts[0])
+            return " | ".join(_format(p) for p in parts)
+        if origin in (list, tuple):
+            return f"list of {_format(args[0])}" if args else "list"
+        if isinstance(annotation, type) and issubclass(annotation, enum.Enum):
+            values = [m.value if isinstance(m.value, str) else m.name
+                      for m in annotation]
+            if len(values) <= 8:
+                return f"one of {{{', '.join(values)}}}"
+            return annotation.__name__
+        return getattr(annotation, "__name__", str(annotation))
+
+    def _field_description(finfo: Any) -> str:
+        if finfo.description:
+            return finfo.description
+        extra = getattr(finfo, "json_schema_extra", None) or {}
+        if isinstance(extra, dict) and isinstance(extra.get("description"), str):
+            return extra["description"]
+        return ""
+
+    sentence_types = list(getattr(language, "sentence_types", ()))
+
+    # Pass 1: collect referenced submodels and enums
+    for SType in sentence_types:
+        for finfo in SType.model_fields.values():
+            if finfo.annotation is not None:
+                _record(finfo.annotation)
+
+    out: list[str] = ["Sentence patterns:"]
+    for SType in sentence_types:
+        out.append(f"  {SType.__name__}:")
+        for fname, finfo in SType.model_fields.items():
+            type_str = _format(finfo.annotation) if finfo.annotation else "?"
+            out.append(f"    - {fname}: {type_str}")
+
+    if referenced_models:
+        out.append("")
+        out.append("Field types (vocabulary is encoded in each "
+                   "lemma field's description):")
+        # Skip the sentence types themselves to avoid duplicating
+        sentence_type_names = {S.__name__ for S in sentence_types}
+        for name, model in referenced_models.items():
+            if name in sentence_type_names:
+                continue
+            out.append(f"  {name}:")
+            for fname, finfo in model.model_fields.items():
+                type_str = _format(finfo.annotation) if finfo.annotation else "?"
+                desc = _field_description(finfo)
+                line = f"    - {fname}: {type_str}"
+                if desc:
+                    line += f"\n        {desc}"
+                out.append(line)
+
+    return "\n".join(out)
+
+
+def _resolve_grammar_string(language: Any) -> str:
+    """Per-language grammar description for the caption prompt.
+
+    Each `yaduha_{iso}` package may define a top-level `get_grammar()
+    -> str` callable that returns a free-form schema description (or any
+    other guidance about which sentence patterns the package handles).
+    Captioner uses it verbatim. Otherwise falls back to introspecting
+    the language's `sentence_types` Pydantic schemas.
+    """
+    iso = language.code
+    try:
+        import importlib
+        mod = importlib.import_module(f"yaduha_{iso}")
+        getter = getattr(mod, "get_grammar", None)
+        if callable(getter):
+            result = getter()
+            if isinstance(result, str) and result.strip():
+                return result.strip()
+    except Exception:  # noqa: BLE001
+        pass
+    return _autobuild_grammar_string(language)
+
+
 def _resolve_vocab_string(language: Any) -> str:
     """Return the per-language vocabulary description for the caption prompt.
 
@@ -108,13 +237,12 @@ def _resolve_vocab_string(language: Any) -> str:
 
 
 def _build_caption_prompt(language: Any) -> str:
-    vocab_block = _resolve_vocab_string(language)
-    if not vocab_block:
-        return CAPTION_SYSTEM_PROMPT_BASE
-    return CAPTION_SYSTEM_PROMPT_BASE + CAPTION_VOCAB_HEADER.format(
-        name=language.name,
-        vocab_block=vocab_block,
-    )
+    grammar_block = _resolve_grammar_string(language)
+    prompt = CAPTION_SYSTEM_PROMPT_BASE
+    if grammar_block:
+        prompt += CAPTION_GRAMMAR_HEADER.format(
+            name=language.name, grammar_block=grammar_block)
+    return prompt
 
 
 def _is_anthropic_model(model: str) -> bool:

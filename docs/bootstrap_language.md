@@ -104,33 +104,29 @@ Before merging:
 - [ ] `__init__.py` does not contain any heuristic-rendered target strings —
       every target token must trace to `vocab.py` or to a morphology rule.
 
-## Optional: `get_vocab() -> str` for richer caption-prompt steering
+## Caption-prompt steering (auto-derived; nothing to implement)
 
-The captioner's pipeline injects a per-language vocabulary description
-into the VLM prompt to steer English captions toward in-vocab lemmas.
-By default, the captioner auto-builds this string from the package's
-`NOUNS`/`TRANSITIVE_VERBS`/`INTRANSITIVE_VERBS`/`ADJECTIVES` as bullet
-lists.
+The captioner injects two blocks into the VLM system prompt for each
+language: a **vocabulary** block and a **grammar** block. Both are
+auto-derived from the package's existing Pydantic spec — implementers
+write nothing extra.
 
-A package may **optionally** override this by defining a module-level
-`get_vocab() -> str` callable in `yaduha_{iso}/__init__.py`:
+- **Vocabulary block** — bullet list of lemma names from `NOUNS` /
+  `TRANSITIVE_VERBS` / `INTRANSITIVE_VERBS` / `ADJECTIVES`. Used to
+  steer the VLM toward in-vocab lemmas (chihuahua → dog, etc.).
+- **Grammar block** — one sentence-type-per-block summary derived by
+  introspecting each `Sentence` subclass's `model_fields`. Small enums
+  are expanded inline (e.g. `tense: one of {present, past, future}`).
+  Used to give the VLM context that the downstream translator will
+  recast English into these patterns.
 
-```python
-def get_vocab() -> str:
-    return (
-        "Common nouns: woman, man, child, dog, ...\n"
-        "Common verbs: walk, sit, eat, see, ...\n"
-        "Cultural notes: 'shaman' is rendered as awá (sacred specialist) "
-        "— use that lemma whenever you'd describe a religious practitioner.\n"
-        "Compounds: render 'wooden bench' as bench + tree (kàl wö̀)."
-    )
-```
-
-The returned string is dropped verbatim into the VLM system prompt under
-`Available {name} vocabulary:`. Use this when a free-form description
-helps more than a flat lemma list — cultural register hints, common
-compounds the package can render, or notes about OOV behavior. None of
-the current 5 packages override it; the auto-fallback is in use.
+If a package needs richer free-form steering than the auto-derived
+versions provide (e.g. cultural register hints, common compounds, OOV
+behavior notes), it may optionally define module-level
+`get_vocab() -> str` and/or `get_grammar() -> str` callables in
+`yaduha_{iso}/__init__.py`. The captioner uses those strings verbatim
+when present. **None of the current 5 packages override; the auto-derived
+versions are the default and intended path.**
 
 ## Why an agent for this and not just a hand-written package?
 
