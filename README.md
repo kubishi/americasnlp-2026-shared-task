@@ -22,40 +22,42 @@ Backend dispatch is by model-name prefix: `claude-*` → Anthropic; `gpt-*`, `o1
 
 | iso | organizer baseline | direct 3-shot (claude) | claude-snt-4-5 | gpt-4o-mini | gpt-4o | gpt-5 |
 |---|--:|--:|--:|--:|--:|--:|
-| bzd | 7.57 | 9.43 | **11.17** | 8.49 | 9.45 | 10.45 |
-| grn | **20.82** | 18.37 | 15.70 | 13.08 | 12.72 | 17.18 |
-| yua | — | 18.86 | **25.01** | 21.01 | 23.96 | 24.10 |
-| nlv | 11.53 | 21.56 | 23.16 | 22.17 | 22.72 | **23.82** |
-| hch | **17.77** | 18.14 | 12.59 | 11.07 | 11.47 | 15.52 |
+| bzd | 7.57 | 9.43 | **10.72** | 8.53 | 9.45 | 10.45 |
+| grn | **20.82** | 18.37 | 15.38 | 13.56 | 12.72 | 17.18 |
+| yua | — | 18.86 | **24.51** | 21.84 | 23.96 | 24.10 |
+| nlv | 11.53 | 21.56 | 23.16 | 22.20 | 22.72 | **23.82** |
+| hch | **17.77** | 18.14 | 11.08 | 11.43 | 11.47 | 15.52 |
 
-**Local-VLM and one-step variants** (translator side held at gpt-4o-mini for the local-VLM row):
+**Local-VLM and one-step variants.** For the qwen row, qwen2.5vl:32b acts as *both* the VLM and the structured-output translator — a fully-local, zero-cost configuration. The 2026-04-23 open-weight translator scan confirmed qwen2.5vl:32b is the strongest local translator of what's on hand; neither the text-only `qwen2.5:32b` sibling, `mixtral:8x22b`, `llama3.1:8b`, nor `llama4:latest` beat it on this task.
 
-| iso | qwen2.5vl:32b VLM (local, free) | one-step gpt-4o-mini |
+| iso | qwen2.5vl:32b (local, free) | one-step gpt-4o-mini |
 |---|--:|--:|
-| bzd | 8.80 | 3.32 |
-| grn | 13.28 | 13.18 |
-| yua | 20.15 | 20.17 |
-| nlv | 19.76 | 18.05 |
-| hch | 13.24 | 8.94 |
+| bzd | 7.92 | 3.25 |
+| grn | 13.50 | 13.18 |
+| yua | 18.64 | 20.17 |
+| nlv | 21.69 | 16.97 |
+| hch | 11.44 | 8.94 |
 
 **Headline averages over the 4 ChrF++-comparable languages (bzd / grn / nlv / hch):**
 
 | | mean |
 |---|--:|
 | organizer baseline (Qwen3-VL → NLLB) | 14.42 |
-| our direct 3-shot, claude-sonnet-4-5 | 16.87 |
-| our pipeline, gpt-4o-mini (cloud, ~$1/sweep) | 13.70 |
-| our pipeline, qwen2.5vl:32b (local, free) | 13.77 |
+| our direct 3-shot, claude-sonnet-4-5 | 16.88 |
+| our pipeline, gpt-4o-mini (cloud, ~$1/sweep) | 13.93 |
+| our pipeline, qwen2.5vl:32b (local, free) | 13.64 |
+| our pipeline, claude-sonnet-4-5 (cloud, ~$5/sweep) | 15.09 |
 | our pipeline, gpt-5 (cloud, ~$25/sweep) | 16.74 |
-| **our pipeline, best-per-lang (cloud)** | **16.92** |
+| **our pipeline, best-per-lang (cloud)** | **16.81** |
 
 **Best per-language pipeline picks:** bzd → claude-sonnet-4-5; grn → gpt-5; yua → claude-sonnet-4-5; nlv → gpt-5; hch → gpt-5.
 
 **Key takeaways**
-- We beat the organizer baseline on bzd (+3.60) and nlv (+12.29); lose on grn (-3.64) and hch (-2.25); cover yua which their NLLB pipeline doesn't.
-- `qwen2.5vl:32b` running locally is ≈ `gpt-4o-mini` on the VLM step. Free upgrade for low-cost iteration.
+- We beat the organizer baseline (Qwen3-VL → NLLB) on bzd (+3.15) and nlv (+12.29); lose on grn (-3.64) and hch (-2.25); cover yua which their NLLB pipeline doesn't.
+- `qwen2.5vl:32b` (local, as both VLM and translator) lands at 4-lang avg **13.64** — roughly matching our `gpt-4o-mini` cloud pipeline (13.93) at $0 cost, but still 0.78 below the organizer baseline's 14.42. Scan of locally-available open-weight translators found nothing stronger than qwen2.5vl:32b itself for the structured-output step.
 - One-step (image → structured directly) loses to two-step at every model tier: the English intermediate is doing real work, and VLMs are weaker at structured-output JSON than text translators.
 - Best-per-lang pipeline ties direct 3-shot on average and adds the grammaticality-by-construction property.
+- The open-weight gap to gpt-5 / claude-3-shot does **not** live in the translator step — the languages where our pipeline underperforms the organizer baseline (grn, hch) are exactly the ones with the thinnest yaduha package coverage. Investment should go into language-package breadth, not translator-model substitution.
 
 ## How it works
 
