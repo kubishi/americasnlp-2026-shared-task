@@ -126,6 +126,48 @@ Working doc for team coordination. Everyone: please add updates under your own s
 
 ---
 
+## Agent Review — 2026-04-25 (T-6 days)
+
+### Status snapshot
+- **Architecture:** stable since the 2026-04-20 reset. `pipeline | one-step | direct` captioners; backend dispatch by model-name prefix; CLI is `python -m americasnlp {evaluate,submit,generate-language}`. `DESIGN.md` and `README.md` are aligned.
+- **Dev coverage:** all 5 languages × 4 cloud models × pipeline + one-step gpt-4o-mini + direct-3-shot claude + qwen2.5vl:32b are in `results/dev/`. Per-lang best picks (pipeline): bzd→claude (11.17), grn→gpt-5 (17.18), yua→claude (25.01), nlv→gpt-5 (23.82), hch→gpt-5 (15.52). Avg 16.92.
+- **Vs. organizer baseline:** beat on bzd (+3.60), nlv (+12.29); lose on grn (-3.64), hch (-2.25); cover yua (no baseline). Direct 3-shot claude wins grn (18.37) and roughly ties hch (18.14) — relevant to the contrastive-submission decision.
+- **Submissions: nothing produced yet.** No `results/submissions/` directory; `submit` CLI is wired but unused. Test set (990 rows) is in the submodule and ready.
+
+### Addressing open items in this doc
+- **Diego → Azul/Amanda question (2026-04-19) about sharing a structured sentence to validate `translate_structured_sentence`:** stale after the 2026-04-20 reset. The new flow has the generator agent author each `yaduha-{iso}` package end-to-end; manual structured-sentence handoff is no longer the integration point. Existing `yaduha-{bzd,grn,yua,nlv}` packages already plug into the pipeline.
+- **Diego's blocker on bribri image format:** resolved. `data.image_data_url` re-encodes via Pillow (see `2026-04-20` notes).
+- **Diego's blocker on Wixárika end-to-end test:** also resolved — full dev sweeps for hch are in `results/dev/`.
+- **2026-04-14 P0 questions (5 vs subset, Qwen vs cloud, native-speaker validation):** all settled by current architecture and dev numbers; can be removed from active backlog.
+
+### Priority queue — last 6 days
+
+**P0 — must finish for submission (2026-05-01):**
+- [ ] **Run `submit` for the best-per-lang picks on the 990-row test set.** Five JSONLs into `results/submissions/`. Owner: **Diego**. Cost ≈ ~$30 total; do this once, do not re-run.
+- [ ] **Validate submission format against the organizer template** before uploading (column names, order, image_id matching). Owner: **Nick** (you wrote `make_submission.py` originally — port that validation step into a quick check on the new outputs).
+- [ ] **Decide on contrastive submissions.** The task allows multiple systems; the direct 3-shot claude baseline beats our pipeline on grn (18.37 vs 17.18) and is essentially tied on hch (18.14 vs 15.52). Jared decision needed: ship `pipeline-best` only, or also `direct-3shot` as a contrastive system? If both, owner for the second is **Nick**.
+
+**P1 — high-leverage if time allows (do P0 first):**
+- [ ] **Submission-mode generators with `--train-frac 1.0`.** Re-run `generate-language` for grn and hch (the underperformers) so the agent sees all 50 dev rows before final submission. Cheap to do; only worth it if dev val-only numbers improve. Owner: **whoever has bandwidth — likely Diego or Nick** after the test sweep starts.
+- [ ] **Two-step VLM hypernym steering.** One-step gained +5.16 yua / +3.97 grn from in-vocab steering; two-step is the primary system but hasn't been tested with the same prompt. Single experiment on grn dev with `gpt-5` would tell us whether to repeat for the test submission. Owner: **needs assignment by Jared** (Amanda / Azul / Faezeh sections are blank).
+
+**P2 — paper window (2026-05-02 → 05-13):**
+- [ ] System description paper outline. The thesis (DESIGN.md) is the contribution; the bootstrap prompt at `docs/bootstrap_language.md` is the artifact. Start outlining 2026-05-02.
+- [ ] Stage-2 human-eval narrative: pipeline's grammaticality-by-construction story is the hook; we are unlikely to win ChrF++ outright but the dev best-per-lang ties direct 3-shot.
+
+### Decisions for Jared
+1. **Submission systems:** primary = best-per-lang pipeline. Also submit direct 3-shot as contrastive? (Strong case on grn/hch.)
+2. **Re-run generator with `--train-frac 1.0` before final submit?** Cheap; only useful for grn / hch where we currently lose.
+3. **VLM hypernym-steering experiment on two-step:** worth a $5 dev sweep on grn before locking submissions?
+4. **Amanda / Azul / Faezeh:** their PROGRESS sections are still empty. With 6 days left, please assign them concrete tasks (paper outline owner, hypernym experiment, submission-format validator, etc.) so they can contribute to the deadline push.
+
+### Code/repo notes
+- `results/evaluation_results.csv` is a stale legacy artifact from before the 2026-04-20 reset (contains `translator-agentic` rows that we explicitly removed). Safe to delete.
+- `results/baseline/` contains the older `bribri/guarani/maya/nahuatl/wixarika`-named CSVs from Nick's pre-reset runs. Not referenced by any current code; consider archiving.
+- `scripts/run_all.sh` only sweeps the dev split — fine, but for the test submissions you'll be invoking `python -m americasnlp submit` per language directly (no sweep script exists yet). A 5-line wrapper would be reasonable but not required.
+
+---
+
 ## Agent Review — 2026-04-14
 
 ### Status snapshot
