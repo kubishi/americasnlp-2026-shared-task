@@ -73,12 +73,16 @@ Working doc for team coordination. Everyone: please add updates under your own s
   - Ran `baseline.py` against Wixárika dev set (3-shot, gpt-4o-mini); results at `results/baseline/wixarika_dev_gpt-4o-mini_shots3.csv` (50 examples).
 - **What I worked on (2026-04-20):**
   - Added make_submission.py from claude/wonderful-ptolemy-HcIbP, just 'merged' the file not the brach"
+- **What I worked on (2026-04-27):**
+  - Created `validate_submission.py` - checks that a submission folder has the right files, line counts, and format before we send it in.
+  - Created `make_all_submissions.sh` - one command that builds submission folders for all 5 languages so we don't have to run `make_submission.py` five times by hand.
+  - Tested both files with the current resources avalible.
 - **Current blockers:**
-  - Remaining 4 languages (bribri, guaraní, maya, nahuatl) not yet baselined — bribri blocked by image format issue; others ready to run.
+  - Waiting on Diego to push test-set submission JSONLs to `results/submissions/`. Until those land, `validate_submission.py` has only been smoke-tested on synthetic data; the real per-language sanity check row counts, empty preds, encoding, etc cannot be run. He said he will have pushed by tommorow. 
 - **Questions for the team:**
+  - N/A talked to Diego over text
 - **Next steps:**
-  - Run `evaluate.py --language wixarika --split dev` end-to-end with Diego to validate `translate_structured_sentence` + bracket-omission fix together.
-  - Run baseline for guaraní, maya, nahuatl once bribri image fix is in.
+
 
 ### Faezeh Dehghan Tarzjani
 - **What I worked on:**
