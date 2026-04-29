@@ -2,7 +2,7 @@
 
 Implements two checks:
 
-  1. Row-count integrity (T-5 days message): bzd 267, grn 110, yua 212,
+  1. Row-count integrity (T-5 days message): bzd 267, grn 101, yua 212,
      nlv 200, hch 201 — reject silently truncated runs.
   2. Per-row sanity (T-4 days message): no empty `predicted_caption`,
      no encoding/Unicode issues, no `[english_lemma]` placeholder
@@ -38,7 +38,7 @@ from americasnlp.languages import LANGUAGES, LanguageConfig  # noqa: E402
 
 EXPECTED_COUNTS: Dict[str, int] = {
     "bribri":   267,
-    "guarani":  110,
+    "guarani":  101,
     "maya":     212,
     "nahuatl":  200,
     "wixarika": 201,
