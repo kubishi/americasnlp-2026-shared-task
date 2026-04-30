@@ -38,7 +38,7 @@ from americasnlp.languages import LANGUAGES, LanguageConfig  # noqa: E402
 
 EXPECTED_COUNTS: Dict[str, int] = {
     "bribri":   267,
-    "guarani":  101,
+    "guarani":  110,
     "maya":     212,
     "nahuatl":  200,
     "wixarika": 201,
