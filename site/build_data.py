@@ -25,9 +25,19 @@ from typing import Optional
 
 ROOT = Path(__file__).resolve().parent.parent
 RESULTS = ROOT / "results" / "dev"
+SUBMISSIONS = ROOT / "results" / "submissions"
 DEV_DATA = ROOT / "americasnlp2026" / "data" / "dev"
+TEST_DATA = ROOT / "americasnlp2026" / "data" / "test"
 SITE_IMAGES = ROOT / "site" / "public" / "data" / "images"
+SITE_TEST_IMAGES = ROOT / "site" / "public" / "data" / "test-images"
 OUT = ROOT / "site" / "public" / "data" / "results.json"
+
+# The single config we used for the test-set submission. The .rich.jsonl
+# file alongside the clean submission file has back_translation +
+# structured_json preserved; we surface it on the site so reviewers can
+# see what each test prediction "means" in English without seeing gold.
+SUBMISSION_RICH_FNAME = "{lang}_one-step_gpt-5.rich.jsonl"
+SUBMISSION_LABEL = "gpt-5 one-step (test submission)"
 
 
 # Display order for languages (matches the README headline tables).
@@ -119,19 +129,14 @@ def load_jsonl(path: Path) -> list[dict]:
         return [json.loads(line) for line in f if line.strip()]
 
 
-def sync_images() -> int:
-    """Copy each language's dev images into site/public/data/images/<lang>/.
-
-    Idempotent: skips images that already exist with matching size. Removes
-    stale symlinks left over from the earlier setup so wrangler sees only
-    real files.
-    """
+def _sync_image_dir(src_root: Path, dst_root: Path) -> int:
+    """Copy each language's images from src_root/<lang>/images/ into
+    dst_root/<lang>/. Idempotent (skip if size matches)."""
     n_copied = 0
-    SITE_IMAGES.mkdir(parents=True, exist_ok=True)
+    dst_root.mkdir(parents=True, exist_ok=True)
     for lang_key in (l["key"] for l in LANGUAGES):
-        src_dir = DEV_DATA / lang_key / "images"
-        dst_dir = SITE_IMAGES / lang_key
-        # If the previous run left a symlink, replace it with a real dir.
+        src_dir = src_root / lang_key / "images"
+        dst_dir = dst_root / lang_key
         if dst_dir.is_symlink():
             dst_dir.unlink()
         dst_dir.mkdir(parents=True, exist_ok=True)
@@ -146,6 +151,12 @@ def sync_images() -> int:
             shutil.copy2(src, dst)
             n_copied += 1
     return n_copied
+
+
+def sync_images() -> int:
+    """Sync dev + test image dirs into site/public/data/."""
+    return (_sync_image_dir(DEV_DATA, SITE_IMAGES)
+            + _sync_image_dir(TEST_DATA, SITE_TEST_IMAGES))
 
 
 def main() -> int:
@@ -248,22 +259,48 @@ def main() -> int:
                 "mean_chrf": round(mean(means), 3),
             })
 
+    # Test-set submission predictions (one row per test sample, one config:
+    # gpt-5 one-step + gpt-4o-mini back-translation).
+    test_predictions: list[dict] = []
+    for lang in LANGUAGES:
+        rich = SUBMISSIONS / SUBMISSION_RICH_FNAME.format(lang=lang["key"])
+        if not rich.exists():
+            print(f"  skip test predictions for {lang['key']}: {rich.name} not found")
+            continue
+        for r in load_jsonl(rich):
+            # The site puts test images under data/test-images/<lang>/<file>;
+            # filename in the JSONL is `images/<id>.<ext>` so we just take
+            # the basename.
+            fname = r["filename"].split("/")[-1]
+            test_predictions.append({
+                "id": r["id"],
+                "language": lang["key"],
+                "image": f"data/test-images/{lang['key']}/{fname}",
+                "predicted_caption": r.get("predicted_caption", ""),
+                "back_translation": r.get("back_translation", ""),
+            })
+    test_predictions.sort(key=lambda e: (lang_order.get(e["language"], 99), e["id"]))
+
     payload = {
         "languages": LANGUAGES,
         "configs": configs_payload,
         "aggregate": aggregate,
         "headline": headline,
         "samples": samples_list,
+        "submission_label": SUBMISSION_LABEL,
+        "test_predictions": test_predictions,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(payload, indent=None, separators=(",", ":")))
 
     size_kb = OUT.stat().st_size / 1024
-    print(f"\n{n_loaded} JSONL files loaded → {len(samples_list)} samples")
+    print(f"\n{n_loaded} JSONL files loaded → {len(samples_list)} dev samples, "
+          f"{len(test_predictions)} test predictions")
     print(f"wrote {OUT.relative_to(ROOT)}: {size_kb:.0f} KB")
 
     n_copied = sync_images()
-    print(f"copied {n_copied} new images into {SITE_IMAGES.relative_to(ROOT)}")
+    print(f"copied {n_copied} new images into "
+          f"site/public/data/{{images,test-images}}/")
     return 0
 
 

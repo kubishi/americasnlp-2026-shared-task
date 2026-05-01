@@ -49,6 +49,8 @@ async function init() {
   buildAggregateTable();
   buildExplorerControls();
   applyFiltersAndRender();
+
+  buildSubmissionExplorer();
 }
 
 document.addEventListener("DOMContentLoaded", init);
@@ -512,6 +514,146 @@ function openDetail(r) {
     englishPre.classList.add("hidden");
   }
 
+  document.getElementById("detail-modal").showModal();
+}
+
+// ----- submission explorer (test-set predictions, no gold) -----
+const subState = {
+  filters: { lang: "", id: "", pred: "", back: "" },
+  sort: { col: "lang", desc: false },
+};
+
+function buildSubmissionExplorer() {
+  if (!state.data?.test_predictions?.length) return;
+
+  const langSel = document.getElementById("sub-filter-lang");
+  if (!langSel) return;
+  for (const lang of state.data.languages) {
+    const opt = document.createElement("option");
+    opt.value = lang.key;
+    opt.textContent = `${lang.name} (${lang.iso})`;
+    langSel.appendChild(opt);
+  }
+  langSel.addEventListener("change", e => {
+    subState.filters.lang = e.target.value; renderSubmissionTable();
+  });
+
+  for (const k of ["id", "pred", "back"]) {
+    const el = document.getElementById(`sub-filter-${k}`);
+    if (!el) continue;
+    el.addEventListener("input", e => {
+      subState.filters[k] = e.target.value.toLowerCase().trim();
+      renderSubmissionTable();
+    });
+  }
+
+  document.querySelectorAll("#submission-table thead th.sortable").forEach(th => {
+    th.addEventListener("click", () => {
+      const col = th.dataset.col;
+      if (subState.sort.col === col) subState.sort.desc = !subState.sort.desc;
+      else { subState.sort.col = col; subState.sort.desc = false; }
+      renderSubmissionTable();
+    });
+  });
+
+  renderSubmissionTable();
+}
+
+function renderSubmissionTable() {
+  const f = subState.filters;
+  const langOrder = Object.fromEntries(
+    state.data.languages.map((l, i) => [l.key, i])
+  );
+  const langName = Object.fromEntries(
+    state.data.languages.map(l => [l.key, l.iso])
+  );
+  let rows = state.data.test_predictions || [];
+  if (f.lang) rows = rows.filter(r => r.language === f.lang);
+  if (f.id)   rows = rows.filter(r => (r.id || "").toLowerCase().includes(f.id));
+  if (f.pred) rows = rows.filter(r => (r.predicted_caption || "").toLowerCase().includes(f.pred));
+  if (f.back) rows = rows.filter(r => (r.back_translation || "").toLowerCase().includes(f.back));
+
+  const sortKey = subState.sort.col;
+  const desc = subState.sort.desc ? -1 : 1;
+  rows = [...rows];
+  rows.sort((a, b) => {
+    let av, bv;
+    switch (sortKey) {
+      case "lang": av = langOrder[a.language] ?? 99; bv = langOrder[b.language] ?? 99; break;
+      case "id":   av = a.id; bv = b.id; break;
+      case "pred": av = a.predicted_caption || ""; bv = b.predicted_caption || ""; break;
+      case "back": av = a.back_translation || ""; bv = b.back_translation || ""; break;
+      default:     av = 0; bv = 0;
+    }
+    if (av < bv) return -1 * desc;
+    if (av > bv) return  1 * desc;
+    return 0;
+  });
+
+  const total = (state.data.test_predictions || []).length;
+  document.getElementById("submission-summary").textContent =
+    `${rows.length.toLocaleString()} of ${total.toLocaleString()} test predictions` +
+    (state.data.submission_label ? ` — ${state.data.submission_label}` : "");
+
+  // Sort indicators
+  document.querySelectorAll("#submission-table thead th.sortable").forEach(th => {
+    th.classList.remove("sort-asc", "sort-desc");
+    th.innerHTML = th.innerHTML.replace(/\s*[▾▲▼]\s*$/, "");
+    if (th.dataset.col === subState.sort.col) {
+      th.classList.add(subState.sort.desc ? "sort-desc" : "sort-asc");
+    } else {
+      th.innerHTML += " ▾";
+    }
+  });
+
+  const tbody = document.querySelector("#submission-table tbody");
+  tbody.innerHTML = "";
+  if (rows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--fg-soft);padding:32px;">No predictions match.</td></tr>`;
+    return;
+  }
+  const MAX_ROWS = 500;
+  const truncated = rows.length > MAX_ROWS;
+  const view = truncated ? rows.slice(0, MAX_ROWS) : rows;
+  for (const r of view) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="thumb-col"><img class="thumb" src="${escape(r.image)}" alt="" loading="lazy" /></td>
+      <td>${escape(langName[r.language] || r.language)}</td>
+      <td><code>${escape(r.id)}</code></td>
+      <td>${markPlaceholders(escape(r.predicted_caption || "—"))}</td>
+      <td class="back-col">${r.back_translation ? markPlaceholders(escape(r.back_translation)) : '<span class="muted">—</span>'}</td>
+    `;
+    tr.addEventListener("click", () => openSubmissionDetail(r));
+    tbody.appendChild(tr);
+  }
+  if (truncated) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="5" style="text-align:center;color:var(--fg-soft);padding:16px;">+${(rows.length - MAX_ROWS).toLocaleString()} more rows match — refine filters.</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+function openSubmissionDetail(r) {
+  const lang = state.data.languages.find(l => l.key === r.language);
+  document.getElementById("detail-source").textContent = r.predicted_caption || "(no prediction)";
+  document.getElementById("detail-type").textContent =
+    `${lang.name} (${lang.iso}) — ${r.id} — ${state.data.submission_label || "test submission"}`;
+  document.getElementById("detail-image").src = r.image;
+  document.getElementById("detail-image").alt = `${lang.name} test image ${r.id}`;
+  const grid = document.querySelector(".detail-grid");
+  const rows = [
+    ["Image ID",  `<span class="value mono">${escape(r.id)}</span>`],
+    ["Predicted (target)", `<span class="value mono">${markPlaceholders(escape(r.predicted_caption || "—"))}</span>`],
+  ];
+  if (r.back_translation) {
+    rows.push(["Back-translation", `<span>${markPlaceholders(escape(r.back_translation))}</span>`]);
+  }
+  grid.innerHTML = rows
+    .map(([k, v]) => `<div class="label">${k}</div><div>${v}</div>`)
+    .join("");
+  document.querySelector(".english-h4")?.classList.add("hidden");
+  document.getElementById("detail-english")?.classList.add("hidden");
   document.getElementById("detail-modal").showModal();
 }
 

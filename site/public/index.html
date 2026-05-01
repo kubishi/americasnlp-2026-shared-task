@@ -24,7 +24,8 @@
     <p class="hero-actions">
       <a class="button primary" href="https://github.com/kubishi/americasnlp-2026-shared-task">Source on GitHub</a>
       <a class="button" href="#results">Aggregate results</a>
-      <a class="button" href="#explorer">Translation explorer</a>
+      <a class="button" href="#explorer">Dev explorer</a>
+      <a class="button" href="#submission">Test submission</a>
     </p>
   </div>
 </header>
@@ -184,6 +185,48 @@
         <h3>ChrF++ distribution</h3>
         <canvas id="chart-histogram"></canvas>
       </div>
+    </div>
+  </div>
+</section>
+
+<section id="submission">
+  <div class="container wide">
+    <h2>Test submission</h2>
+    <p class="caption">
+      Per-row predictions on the 990-image test split, produced by the
+      submitted configuration: <strong>gpt-5 one-step</strong>
+      (single VLM call with image + Pydantic schema, structured output)
+      paired with <code>gpt-4o-mini</code> back-translation from the
+      structured intermediate. No gold captions on the test split, so
+      ChrF can't be reported here — judge fluency by reading the
+      back-translation alongside the image. Per-column filter + click-
+      sort, same as the dev explorer.
+    </p>
+
+    <p class="explorer-summary" id="submission-summary"></p>
+
+    <div class="table-wrap explorer-table-wrap">
+      <table id="submission-table">
+        <thead>
+          <tr class="header-row">
+            <th class="thumb-col">Image</th>
+            <th class="sortable" data-col="lang">Language ▾</th>
+            <th class="sortable" data-col="id">ID ▾</th>
+            <th class="sortable" data-col="pred">Predicted ▾</th>
+            <th class="sortable" data-col="back">Back-translated ▾</th>
+          </tr>
+          <tr class="filter-row">
+            <th></th>
+            <th><select id="sub-filter-lang" class="col-filter">
+              <option value="">all</option>
+            </select></th>
+            <th><input id="sub-filter-id" type="search" placeholder="filter…" class="col-filter" /></th>
+            <th><input id="sub-filter-pred" type="search" placeholder="filter…" class="col-filter" /></th>
+            <th><input id="sub-filter-back" type="search" placeholder="filter…" class="col-filter" /></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
   </div>
 </section>

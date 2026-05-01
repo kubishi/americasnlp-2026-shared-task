@@ -216,7 +216,8 @@ th.center, td.center { text-align: center; }
 #explorer-table td.back-col .muted { color: var(--fg-faint); font-style: normal; }
 #explorer-table th.thumb-col, #explorer-table td.thumb-col { width: 72px; }
 
-#explorer-table img.thumb {
+#explorer-table img.thumb,
+#submission-table img.thumb {
   width: 72px;
   height: 72px;
   object-fit: cover;
@@ -224,6 +225,24 @@ th.center, td.center { text-align: center; }
   background: #ddd;
   display: block;
 }
+
+/* Same hover + cursor behavior as the dev explorer */
+#submission-table tbody tr {
+  cursor: pointer;
+  transition: background 0.1s;
+}
+#submission-table tbody tr:hover { background: var(--accent-soft); }
+#submission-table th.thumb-col, #submission-table td.thumb-col { width: 72px; }
+#submission-table td:nth-child(4) {  /* Predicted column */
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+#submission-table td.back-col {
+  font-style: italic;
+  color: var(--fg-soft);
+  font-size: 0.83rem;
+}
+#submission-table td.back-col .muted { color: var(--fg-faint); font-style: normal; }
 
 .score-good { color: var(--good); font-weight: 500; }
 .score-bad  { color: var(--bad); }

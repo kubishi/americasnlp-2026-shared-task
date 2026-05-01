@@ -38,7 +38,7 @@ from americasnlp.languages import LANGUAGES, LanguageConfig  # noqa: E402
 
 EXPECTED_COUNTS: Dict[str, int] = {
     "bribri":   267,
-    "guarani":  110,
+    "guarani":  101,  # 2026-04-30: upstream removed 9 duplicate IDs (was 110)
     "maya":     212,
     "nahuatl":  200,
     "wixarika": 201,
