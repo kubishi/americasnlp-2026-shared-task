@@ -48,17 +48,33 @@ def make_submission(
           f"({len(done)} resumed)  -> {output}", file=sys.stderr)
 
     write_lock = threading.Lock()
+    rich_path = output.with_suffix(".rich.jsonl")
 
     def _process(rec: dict) -> None:
+        english_intermediate = None
+        back_translation = None
+        structured_json = None
         try:
             result = captioner.caption(rec, resolve_image_path(rec, base_dir))
             pred = result.target
+            english_intermediate = result.english_intermediate
+            back_translation = result.back_translation
+            structured_json = getattr(result, "structured_json", None)
         except Exception as exc:  # noqa: BLE001
             print(f"[{rec['id']}] ERROR: {exc}", file=sys.stderr)
             pred = ""
         out = submission_row(rec, pred)
+        # Rich record has the same fields plus debug / traceability extras.
+        rich = dict(out)
+        if english_intermediate:
+            rich["english_intermediate"] = english_intermediate
+        if back_translation:
+            rich["back_translation"] = back_translation
+        if structured_json is not None:
+            rich["structured_json"] = structured_json
         with write_lock:
             append_jsonl(output, out)
+            append_jsonl(rich_path, rich)
         preview = pred.replace("\n", " ")[:60]
         print(f"  {rec['id']}  {preview!r}", file=sys.stderr)
 

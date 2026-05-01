@@ -1,0 +1,13 @@
+# Cloudflare Pages config for the AmericasNLP 2026 project page.
+#
+# Deploy:
+#   uv run python site/build_data.py        # rebuild data/results.json
+#   wrangler pages deploy                    # uses pages_build_output_dir below
+#
+# First-time auth (interactive):
+#   wrangler login                           # opens browser; OR
+#   export CLOUDFLARE_API_TOKEN=...          # for headless CI
+
+name = "americasnlp-2026"
+compatibility_date = "2026-04-29"
+pages_build_output_dir = "site/public"

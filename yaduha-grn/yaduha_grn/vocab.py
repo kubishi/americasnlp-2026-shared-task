@@ -332,4 +332,8 @@ ADJECTIVES = [
     VocabEntry(english="woven",      target="pirõ"),           # Guasch & Ortiz 1986
     VocabEntry(english="sacred",     target="marangatu"),      # cap. grn_007
     VocabEntry(english="many",       target="heta"),           # cap. grn_007
+    VocabEntry(english="true",       target="teete"),          # cap. grn_002 "pohã ñana teete"; Guasch & Ortiz
+    VocabEntry(english="real",       target="teete"),
+    VocabEntry(english="painful",    target="asy"),            # cap. grn_007 "tasy" / "asýva"; Gregores & Suárez §5.2
+    VocabEntry(english="sour",       target="asy"),
 ]

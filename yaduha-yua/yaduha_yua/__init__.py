@@ -57,7 +57,7 @@ from __future__ import annotations
 
 from enum import Enum
 from random import choice, randint
-from typing import Dict, Generator, List, Optional, Tuple, Union
+from typing import Dict, Generator, List, Literal, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field
 
@@ -73,6 +73,12 @@ from yaduha_yua.vocab import NOUNS, TRANSITIVE_VERBS, INTRANSITIVE_VERBS
 NOUN_LOOKUP: Dict[str, VocabEntry] = {e.english: e for e in NOUNS}
 T_VERB_LOOKUP: Dict[str, VocabEntry] = {e.english: e for e in TRANSITIVE_VERBS}
 I_VERB_LOOKUP: Dict[str, VocabEntry] = {e.english: e for e in INTRANSITIVE_VERBS}
+
+# Closed lemma vocabularies — typed as Literal so the LLM's structured
+# output cannot emit out-of-vocabulary terms.
+NounLemma = Literal[*tuple(sorted(NOUN_LOOKUP))]  # type: ignore[valid-type]
+TransitiveVerbLemma = Literal[*tuple(sorted(T_VERB_LOOKUP))]  # type: ignore[valid-type]
+IntransitiveVerbLemma = Literal[*tuple(sorted(I_VERB_LOOKUP))]  # type: ignore[valid-type]
 
 
 def get_noun_target(lemma: str) -> str:
@@ -308,15 +314,25 @@ class Noun(BaseModel):
     When ``definite`` is True, the noun is bracketed by the distal
     clitics ``le ... o'`` instead ("le che'o'" = "the tree").
     """
-    head: str = Field(
+    head: NounLemma = Field(
         ...,
-        json_schema_extra={
-            "description": (
-                "A noun lemma. "
-                f"Known nouns: {_KNOWN_NOUNS_HINT}. "
-                "If the exact noun is not listed, pass the English lemma as a placeholder."
-            )
-        },
+        description=(
+            "A noun lemma. Pick the closest match from the enum; use a "
+            "hypernym if the literal noun isn't listed (e.g. 'chihuahua' → "
+            "'dog'). When you set 'proper_noun', still pick the closest "
+            "hypernym here as a type hint."
+        ),
+    )
+    proper_noun: Optional[str] = Field(
+        default=None,
+        description=(
+            "Optional verbatim string for proper nouns (named entities) "
+            "that lack an in-vocab lemma — e.g. 'Chichén Itzá', 'Mérida', "
+            "'Maria', 'Maaya t'aan'. When set, this string is rendered "
+            "verbatim INSTEAD OF the 'head' lemma. **Use only for actual "
+            "named entities. Do NOT use as a placeholder for unknown "
+            "common nouns — pick a hypernym from the lemma list instead.**"
+        ),
     )
     number: Number = Number.singular
     definite: bool = Field(
@@ -335,28 +351,21 @@ class Verb(BaseModel):
 
 
 class TransitiveVerb(Verb):
-    lemma: str = Field(
+    lemma: TransitiveVerbLemma = Field(
         ...,
-        json_schema_extra={
-            "description": (
-                "A transitive verb lemma. "
-                f"Known transitive verbs: {_KNOWN_TVERBS_HINT}. "
-                "If the verb is not listed, pass the English lemma as a placeholder."
-            )
-        },
+        description=(
+            "A transitive verb lemma. Pick the closest match from the enum."
+        ),
     )
 
 
 class IntransitiveVerb(Verb):
-    lemma: str = Field(
+    lemma: IntransitiveVerbLemma = Field(
         ...,
-        json_schema_extra={
-            "description": (
-                "An intransitive verb lemma (includes positional/stative -kbal forms). "
-                f"Known intransitive verbs: {_KNOWN_IVERBS_HINT}. "
-                "If the verb is not listed, pass the English lemma as a placeholder."
-            )
-        },
+        description=(
+            "An intransitive verb lemma (includes positional/stative -kbal "
+            "forms). Pick the closest match from the enum."
+        ),
     )
 
 
@@ -385,6 +394,9 @@ def _pluralize(stem: str) -> str:
 
 def _render_noun(n: Noun) -> str:
     """Render a :class:`Noun` as a complete target-language NP."""
+    if n.proper_noun:
+        # Proper nouns render verbatim, no classifier or pluralization.
+        return n.proper_noun.strip()
     head = get_noun_target(n.head)
     if head.startswith("["):
         return head
@@ -820,7 +832,7 @@ class PredicativeSentence(Sentence["PredicativeSentence"]):
     ("This is a pink flower").
     """
     subject: Union[Noun, Person] = Field(
-        default_factory=lambda: Noun(head="this"),
+        default_factory=lambda: Noun(head="person"),
         description="Subject NP or pronoun; ignored when 'demonstrative' is True.",
     )
     predicate: Noun

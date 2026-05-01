@@ -130,16 +130,24 @@ def evaluate(
 
     def _process(rec: dict) -> dict:
         english_intermediate: Optional[str] = None
+        back_translation: Optional[str] = None
+        structured_json = None
         try:
             result = captioner.caption(rec, resolve_image_path(rec, base_dir))
             pred = result.target
             english_intermediate = result.english_intermediate
+            back_translation = result.back_translation
+            structured_json = getattr(result, "structured_json", None)
         except Exception as exc:  # noqa: BLE001
             print(f"[{rec['id']}] ERROR: {exc}", file=sys.stderr)
             pred = ""
         out = submission_row(rec, pred)
         if english_intermediate:
             out["english_intermediate"] = english_intermediate
+        if back_translation:
+            out["back_translation"] = back_translation
+        if structured_json is not None:
+            out["structured_json"] = structured_json
         if rec.get("target_caption"):
             out["target_caption"] = rec["target_caption"]
             out["chrf"] = _chrf(pred, rec["target_caption"]) if pred else 0.0

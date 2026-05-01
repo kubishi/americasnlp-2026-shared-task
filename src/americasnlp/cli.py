@@ -30,7 +30,11 @@ def _make_captioner(args: argparse.Namespace) -> Captioner:
         )
     if args.method == "one-step":
         from americasnlp.captioners.one_step import OneStepCaptioner
-        return OneStepCaptioner(lang=lang, vlm_model=args.vlm)
+        return OneStepCaptioner(
+            lang=lang,
+            vlm_model=args.vlm,
+            back_translator_model=args.translator,  # reused as BT slot for one-step
+        )
     if args.method == "direct":
         from americasnlp.captioners.direct import DirectCaptioner
         return DirectCaptioner(

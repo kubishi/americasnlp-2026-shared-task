@@ -1,0 +1,51 @@
+id,predicted_caption,target_caption,chrf
+nlv_001,Siuatl kipia sombrero. Siuatl ikak. Tepeyo ka. Iluikatl tlamixtemi.,"Se ichpochtli ika xonbelo tlachixtok ik tlani, kanin ixtlauak. Tlachipajtok.",15.4082
+nlv_002,Maseuali motlalia. Maseuali kipia tlakotl. Se koxtali ipan tlali. Miakej tepemej ijtik ikampa.,"Se telpochtli moseuijtok ipan se ueyi tetl. Motlakentok ika xonbelo, tliliuik kamisa uan pantalon. Itech ima se tlakotl. Ikuitlapan kajki tepeyo.",22.2401
+nlv_003,Tlakatl ikak. Tlakatl tlajtoa. Maseualmej motlaliaj. Maseualmej kikakij tlakatl.,Sekimej nauatekaj kikajtokej se tlapoualistli ika intlajtolkopa.,22.0653
+nlv_004,Tlakamej uetskaj. Tlakatl kinpia lentesmej. Tlakatl kipia tentsontli. Maseualmej kaj. Kuaumej kaj.,Ome telpochmej kimokixtiliaj se foto. Motlakentijtokej ika sejse ialtepetlaken.,17.8405
+nlv_005,Se kamion ipan ojtli. Maseualmej kichiaj kamion. Sekimej kuaumej ijtik ikampa. Se kali ijtik ikampa.,Sekimej maseualmej non chantij ik Zongolica tlejkoskej ipan kamion.,33.2868
+nlv_006,Sekimej siuamej. Siuamej kipiaj tlakuali. Siuamej tlajtoaj. Sentilistli kinyaualoa siuamej.,Eyi siuamej motlapouiaj. Ome motlakentokej ken non chantij Ixhuatlancillo.,21.3570
+nlv_007,Se ixtlauak. Sekimej kuaumej ijtik ikampa. Se tlatsakuili inakastlan ixtlauak. Sekimej mixmej ijtik iluikatl.,Se ouamila ika itlatsakuil. Sekitsin tlamixtemik.,29.1895
+nlv_008,Maseuali kipia yolkatl.,Ikaj kipixtok ima se palankatsin non nesi omotlajtlachialti.,10.5423
+nlv_009,Xiuitl kinpia xochimej. Xochimej kueponij. Miakej iswamej ipan xiuitl.,Seki Yolitisxochitl uan se ajyoxiuitl.,22.6042
+nlv_010,Se xiuitl ipan kuaumaitl. Xiuitl kinpia achmej.,Seki uajxilxochitl tlen yikin kueponij.,16.9482
+nlv_011,Xochitl kueponi. Sekimej xiuimej ijtik ikampa.,Se gladiolajxochitl non achtsin youakik.,16.9019
+nlv_012,Se xochitl inauak tepamitl. Xiuitl kinpia iswamej.,Se kualtsin senpoalxochitl non melajka xochitl.,23.8589
+nlv_013,Se ayautli ipan ojtli. Se tlatsakuili inauak ojtli. Miakej kuaumej ijtik ayautli.,"Se foto kanin nextok ojtli, tetlala inakastlan uan semi tlamixtentok ken yetoskia totoka tiuaij ipan se karro.",16.5977
+nlv_014,Miakej iswamej ipan tlali. Se xochitl ipan tlali. Sekimej iswamej.,Se kiniaxiuitl non amo tikkuaj tlaxochixtok.,18.6249
+nlv_015,Se xochitl ipan kuaumaitl. Sekimej iswamej ijtik ikampa.,Se kiniaxochitl ika se tokatl ipan. Nin kiniatl amo tikkuaj.,28.1755
+nlv_016,Se tepetl ijtik ikampa. Sekimej kuaumej ijtik ixtlauak. Sekimej sakamej ipan tlali.,Se ixtlauaktsintli ika kuajyo uan se kaltsintli. Uejka kajki se tiltepetl itoka Poyaujtekatl.,23.3305
+nlv_017,Sentilistli tekipanoa. Maseualmej kichiuaj tlakuali. Maseualmej ikakj. Maseualmej kinpiaj tlakenmej.,"Tlakamej uan siuamej mopaleuiaj tlakualchiuaj. Se kitejteki xonakatl, okse kichiua tsopelikatl, okse kitejteki tsilanko, uan okome kichiua chilmoli.",20.8782
+nlv_018,Siuatl kiixka tlakuali. Siuatl kipia altepetlaken. Komitl ka. Nakatl ka. Kaxitl ka. Tlakuali ka.,"Ijtik se kaltsintli, se ichpoka non tlakentok ika xochitlakemitl kitejteki nakatl ipan se tlapechtli.",18.9232
+nlv_019,Miakej kuaumej ijtik kuajyo. Iluikatl ka. Ikampa ka.,Se xonokuauitl ika xonokuilmej.,16.2654
+nlv_020,Se tepetl ijtik ikampa. Sekimej kuaumej ijtik ikampa. Sekimej mixmej ijtik iluikatl.,"Ueyi tepeyo tlen amo niman tlami, nesi ik nouian kajki. Tlamixtentok uan san ik toyekma, ajkopa, tlachipauak.",12.9267
+nlv_021,Se maseuali ipan ojtli. Sekimej kuaumej inauak ojtli. Se iluikatl ijtik ikampa.,Se siuatsintli nemi ipan se teyo ojtli kanin kuajyo.,23.0518
+nlv_023,Ayautli kitlapachoa ixtlauak. Se tlatsakuili inakastlan sakatl.,Se tepetsintli kiyaualojtok kuautitlamitl uan semi tlamixtentok.,21.2461
+nlv_024,Se sentilistli ijtik tianki. Maseualmej kinamakaj tlakuali. Se tlakuali ipan tlapechtli.,Itech se mantajkaltsintli kintetliokolilia tlakuali akinmej uejka uitsej. Nochtin motlakentiaj ika inmialtepetsotsol.,21.9358
+nlv_025,Se altepetl ijtik tepeyo. Se tepetl ijtik altepetl. Se mixtli ijtik iluikatl.,"Se ixtlauak ika miakej kaltsitsintin, kiyaualojtok tepeyo uan mixtli.",22.9734
+nlv_026,Se xochitl.,Se kostik senpoalxochitl.,31.2808
+nlv_027,Xochitl kueponi. Xiuitl kinpia iswamej.,Se matlalxochitl kualtsin uan se non yopitsuakik.,19.3749
+nlv_028,Atl motoyaua. Xiuimej kiyaualoaj atl.,Se ameyali uetsi ipan temej ijtik tepetl.,12.2002
+nlv_029,Se tlakuali ipan tlakuamej.,"Seki tlalkamojtli uan se motasneki ken se ""yolotl"".",11.3007
+nlv_030,Ueyatsintli motoyaua. Temej kaj. Xiuimej kiyaualoaj ueyatsintli. Ojtli ka. Atl ka.,Se ueyatsintli ika temej tlen ipan tlapajpakaj.,29.6955
+nlv_031,Se mikkakaxa ipan tlali. Se sentilistli inakastlan mikkakaxa. Miakej kuaumej ijtik ikampa. Se tepetl ijtik ikampa.,Seki altepetlakamej uan topilmej kitookaskej akin omomikili. Katej itlanpa se kuauitl uan ik uejka kajki se tepetl ika se ojtli itlajkotia.,22.3811
+nlv_032,Se kouatl ipan tetl. Sekimej xiuimej inakastlan tetl.,Se topiltsi okiski omototonito ipan se tetl.,22.4419
+nlv_033,Se kali inakastlan atl. Miakej kuaumej inakastlan atl.,Se ateskatl inauak se kali. Kiyaualojtok kuajyo.,22.8483
+nlv_034,Miakej kuaumej inauak atl. Se tepetl ijtik ikampa. Miakej mixmej ijtik iluikatl.,Ateskatl ika ateskilitl inauak kuajyo.,23.2403
+nlv_035,Se siuatl inauak kuauitl. Se ojtli inakastlan kuauitl.,Se siuatsintli ika itlaken xochijyo itlanpa se aueuetl uejkapantik.,21.6287
+nlv_036,Mai kipia xiuitl. Sekimej xiuimej ijtik ikampa.,"Serakilitl, xokok uan uelik ika se tlaxkali.",14.9077
+nlv_037,Se xochitl ipan xiuitl. Sekimej kuaumej ijtik ikampa.,"Xiuitl non kiluiaj ""kajkauapajtli"" uan tlapaleuia ijkuak ikaj aminajtok.",15.2158
+nlv_038,Se chili ijtik komitl. Se komitl ipan tlapechtli.,Seki soyonkej chilmej.,16.0557
+nlv_039,Se ixtlauak ijtik kuajyo. Miakej kuaumej ijtik ikampa. Miakej tepemej ijtik ikampa. Miakej mixmej ijtik iluikatl.,Se gladiolajtooktli inauak se mila. Ik uejka tepeyo uan tlamixtentok.,18.4302
+nlv_040,Kuaumaitl kinpia iswamej. Tepetl ka. Ikampa ka.,Se mamayotsintli kinextia yankuik xiuitl.,13.2368
+nlv_041,Se kouatl ipan tlali. Sekimej xiuimej ipan tlali.,"Se kouatl non kiliaj ""palanka"".",30.8668
+nlv_042,Se mikkaltsintli ipan tepetl. Miakej kuaumej ijtik mikkaltsintli.,Miakej kalmej ipan tepetl.,54.5629
+nlv_043,Se mantis ipan tetl. Miakej yolkamej ipan tetl. Se iswatl ipan tetl.,Se mantis ipan tlali.,48.4073
+nlv_044,Se maseuali ipan ojtenpa. Se tonati ijtik iluikatl. Se tepetl ijtik ikampa.,Se tlakatsin non otekipanoto mokopa icha ijkuak yitlayoua ik tepetl.,22.0153
+nlv_045,Xochimej kueponij. Ome iswamej ijtik ikampa.,Seki buganbiliajxochitl.,14.4204
+nlv_046,Se yolkatl ipan iswatl.,Se tokatsin ipan se omikilitl.,22.5537
+nlv_047,Xochitl kueponi. Xochitl ka. Xiuitl kipia xochitl.,Se pitsauaxochitl non yopejki pitsuaki.,23.7272
+nlv_048,Xochitl kueponi. Se xochitl ipan tlali.,"Se xochitl tlen kiluiaj ""pitsauaxochitl"".",35.2874
+nlv_049,Ojtli tlakoloua. Kuaumej kaj. Kalmej kaj. Iluikatl tlamixtemi.,Se ojtli tlen tlakoloua uan katej seki kalmej uan olochkuauitl tlen okintepankej.,24.0679
+nlv_050,Miakej tlakomej inauak kali. Tepamitl ka. Miakej kuaumej ijtik ikampa.,Miak olochkuauitl okintepankej inauak se tepankali..,28.3571
+nlv_051,Se kuauitl ipan ojtenpa. Se maseuali inauak kali. Se ojtli ijtik ikampa.,"Se tenantsin ika ialtepetlaken kichixtok karro kaltentli, ojtenpa.",23.1770

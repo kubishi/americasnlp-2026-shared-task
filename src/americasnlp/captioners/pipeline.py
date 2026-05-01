@@ -30,22 +30,48 @@ from americasnlp.languages import LanguageConfig
 
 
 CAPTION_SYSTEM_PROMPT_BASE = (
-    "Describe the photograph in literal English. Cover what you see: "
-    "people, animals, objects, what's happening, where it is, and "
-    "notable properties. No commentary, no quotation marks, no bullet "
-    "points — just the description.\n\n"
+    "Write a literal English description of this photograph as a series "
+    "of simple, atomic sentences. Each sentence should describe ONE "
+    "fact: a subject and what it is doing or where it is, optionally "
+    "with an object.\n\n"
+    "Examples of the right shape:\n"
+    "  - 'A man holds a basket.'\n"
+    "  - 'The dog is on the chair.'\n"
+    "  - 'The flower is red.'\n\n"
+    "Do NOT use complex constructions: no relative clauses ('the man "
+    "WHO ...'), no participials ('a basket WOVEN of strips'), no "
+    "nominalizations, no embedded clauses, no 'however' / 'although' / "
+    "'while'. Convert anything you'd normally express that way into "
+    "multiple simple sentences. Use as many atomic sentences as the "
+    "image needs — don't artificially compress, but don't pad either.\n\n"
+    "No commentary, no quotation marks, no bullet points — just the "
+    "sentences.\n\n"
 )
 
 CAPTION_GRAMMAR_HEADER = (
-    "After you describe the image, a downstream step will recast your "
-    "English to fit the {name} grammar below. Producing English that's "
-    "naturally compatible with these patterns helps that step, but "
-    "don't twist the description into knots — clarity wins over "
-    "alignment.\n\n"
-    "**When the literal word for what you see falls outside the listed "
-    "lemmas, prefer a hypernym from the list** (e.g. chihuahua → dog, "
-    "mansion → house, shaman → person). When the literal word IS in "
-    "the list, use it as-is.\n\n"
+    "Your English will be parsed into the {name} grammar below: a small "
+    "fixed inventory of sentence types and a closed vocabulary. Shape "
+    "your description so each sentence cleanly maps to one of the "
+    "available Sentence types using listed lemmas — that way the "
+    "parser can carry your meaning faithfully into {name}.\n\n"
+    "Guidance:\n"
+    "  1. **Atomic sentences.** One subject + one verb (+ one object) "
+    "per sentence. Split anything more complex into multiple sentences.\n"
+    "  2. **Lemma discipline.** Prefer words from the lemma lists "
+    "below. When the literal word isn't listed, substitute a hypernym "
+    "from the list (chihuahua → dog, mansion → house, shaman → person, "
+    "crimson → red).\n"
+    "  3. **Faithfully describe what you see** — including modifiers, "
+    "actions, and locations. The schema will keep what fits and silently "
+    "drop what doesn't, so don't pre-filter your description; just keep "
+    "it in atomic-sentence shape.\n"
+    "  4. **Name proper nouns when you recognize them.** If the image "
+    "depicts an identifiable place, person, or named entity (a famous "
+    "monument, a known town, a person, a brand) name it explicitly so "
+    "the parser can carry it through verbatim. Examples: 'The Panteón "
+    "de los Héroes stands.' 'Maria cooks food.' 'A bus is in Asunción.' "
+    "Only do this for entities you can confidently identify — do not "
+    "invent names.\n\n"
     "{name} grammar:\n{grammar_block}"
 )
 
@@ -137,6 +163,12 @@ def _autobuild_grammar_string(language: Any) -> str:
             return " | ".join(_format(p) for p in parts)
         if origin in (list, tuple):
             return f"list of {_format(args[0])}" if args else "list"
+        if origin is typing.Literal:
+            values = [str(a) for a in args]
+            if len(values) <= 8:
+                return "one of {" + ", ".join(values) + "}"
+            return ("one of " + str(len(values)) + " values: "
+                    + ", ".join(values))
         if isinstance(annotation, type) and issubclass(annotation, enum.Enum):
             values = [m.value if isinstance(m.value, str) else m.name
                       for m in annotation]
@@ -388,7 +420,10 @@ class PipelineCaptioner:
         english = _vlm_caption_english(
             self.vlm_model, image_path, self._caption_prompt)
         translation = self._translator.translate(english)
+        back = (translation.back_translation.source
+                if translation.back_translation else None)
         return CaptionResult(
             target=translation.target.strip(),
             english_intermediate=english,
+            back_translation=back.strip() if back else None,
         )

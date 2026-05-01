@@ -31,7 +31,7 @@ from __future__ import annotations
 import re
 from enum import Enum
 from random import choice, randint
-from typing import Dict, Generator, List, Optional, Tuple, Union
+from typing import Dict, Generator, List, Literal, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field
 
@@ -50,6 +50,14 @@ NOUN_LOOKUP: Dict[str, VocabEntry] = {e.english: e for e in NOUNS}
 ADJ_LOOKUP: Dict[str, VocabEntry] = {e.english: e for e in ADJECTIVES}
 TRANSITIVE_VERB_LOOKUP: Dict[str, VocabEntry] = {e.english: e for e in TRANSITIVE_VERBS}
 INTRANSITIVE_VERB_LOOKUP: Dict[str, VocabEntry] = {e.english: e for e in INTRANSITIVE_VERBS}
+
+# Closed lemma vocabularies — typed as Literal so the LLM's structured
+# output cannot emit out-of-vocabulary terms. The captioner prompt steers
+# the VLM toward in-vocab hypernyms; this is the schema-level enforcement.
+NounLemma = Literal[*tuple(sorted(NOUN_LOOKUP))]  # type: ignore[valid-type]
+AdjectiveLemma = Literal[*tuple(sorted(ADJ_LOOKUP))]  # type: ignore[valid-type]
+TransitiveVerbLemma = Literal[*tuple(sorted(TRANSITIVE_VERB_LOOKUP))]  # type: ignore[valid-type]
+IntransitiveVerbLemma = Literal[*tuple(sorted(INTRANSITIVE_VERB_LOOKUP))]  # type: ignore[valid-type]
 
 
 def get_noun_target(lemma: str) -> str:
@@ -181,28 +189,38 @@ def get_plural_form(lemma: str) -> str:
 # PYDANTIC MODELS
 # ---------------------------------------------------------------------------
 class Adjective(BaseModel):
-    lemma: str = Field(
+    lemma: AdjectiveLemma = Field(
         ...,
-        json_schema_extra={
-            "description": (
-                "A descriptive / color / quality lemma. Known: "
-                + ", ".join(e.english for e in ADJECTIVES)
-                + ". If unknown, pass the English word as a placeholder."
-            )
-        },
+        description=(
+            "A descriptive / color / quality lemma. Pick the closest "
+            "match from the enum. Use a hypernym if the literal property "
+            "isn't listed (e.g. 'crimson' → 'red')."
+        ),
     )
 
 
 class Noun(BaseModel):
-    head: str = Field(
+    head: NounLemma = Field(
         ...,
-        json_schema_extra={
-            "description": (
-                "A noun lemma. Known: "
-                + ", ".join(e.english for e in NOUNS)
-                + ". If unknown, pass the English word as a placeholder."
-            )
-        },
+        description=(
+            "A noun lemma. Pick the closest match from the enum. Use a "
+            "hypernym if the literal noun isn't listed (e.g. 'chihuahua' → "
+            "'dog', 'mansion' → 'house', 'shaman' → 'person'). When you "
+            "set 'proper_noun', still pick the closest hypernym here as "
+            "a type hint."
+        ),
+    )
+    proper_noun: Optional[str] = Field(
+        default=None,
+        description=(
+            "Optional verbatim string for proper nouns (named entities) "
+            "that lack an in-vocab lemma — e.g. 'Mercado 4', 'Panteón de "
+            "los Héroes', 'Maria', 'Talamanca'. When set, this string is "
+            "rendered verbatim INSTEAD OF the 'head' lemma. **Use only "
+            "for actual named entities. Do NOT use as a placeholder for "
+            "unknown common nouns — pick a hypernym from the lemma list "
+            "instead.**"
+        ),
     )
     number: Number = Number.singular
     modifier: Optional[Adjective] = Field(
@@ -223,28 +241,22 @@ class Verb(BaseModel):
 
 
 class TransitiveVerb(Verb):
-    lemma: str = Field(
+    lemma: TransitiveVerbLemma = Field(
         ...,
-        json_schema_extra={
-            "description": (
-                "A transitive verb lemma. Known: "
-                + ", ".join(e.english for e in TRANSITIVE_VERBS)
-                + ". If unknown, pass the English word as a placeholder."
-            )
-        },
+        description=(
+            "A transitive verb lemma. Pick the closest match from the "
+            "enum; use a hypernym if the literal action isn't listed."
+        ),
     )
 
 
 class IntransitiveVerb(Verb):
-    lemma: str = Field(
+    lemma: IntransitiveVerbLemma = Field(
         ...,
-        json_schema_extra={
-            "description": (
-                "An intransitive verb lemma. Known: "
-                + ", ".join(e.english for e in INTRANSITIVE_VERBS)
-                + ". If unknown, pass the English word as a placeholder."
-            )
-        },
+        description=(
+            "An intransitive verb lemma. Pick the closest match from the "
+            "enum; use a hypernym if the literal action isn't listed."
+        ),
     )
 
 
@@ -256,7 +268,10 @@ def _render_np(np: Union[Noun, Person]) -> str:
     if isinstance(np, Person):
         return SUBJECT_PRONOUNS[np]
     if isinstance(np, Noun):
-        if np.number == Number.plural:
+        # Proper-noun escape hatch: render verbatim if set.
+        if np.proper_noun:
+            head_str = np.proper_noun.strip()
+        elif np.number == Number.plural:
             head_str = get_plural_form(np.head)
         else:
             head_str = get_noun_target(np.head)
@@ -270,14 +285,14 @@ def _render_np(np: Union[Noun, Person]) -> str:
 
 def _np_is_known(np: Union[Noun, Person]) -> bool:
     """True if the noun phrase will render to *concrete* target-language
-    content (not a `[foo]` placeholder). The framework strips bracketed
-    placeholders from evaluation output — if we emit a structural particle
-    like `tö` or `wa̱` anchored to a placeholder NP, the particle is left
-    dangling after stripping. So we gate those particles on 'known'.
+    content. Proper-noun-overridden NPs are also considered known (the
+    verbatim string is real content even if not from the lemma list).
     """
     if isinstance(np, Person):
         return True
     if isinstance(np, Noun):
+        if np.proper_noun:
+            return True
         return bool(np.head) and (np.head in NOUN_LOOKUP)
     return False
 

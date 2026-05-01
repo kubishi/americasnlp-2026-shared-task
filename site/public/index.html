@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LLM-RBMT Image Captioning for Indigenous Languages</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <h1>LLM-Assisted RBMT for Image Captioning<br/>in Indigenous&nbsp;Languages</h1>
+    <p class="tagline">
+      AmericasNLP 2026 Shared Task entry. An agent reads each language's
+      dev captions plus open-web references and writes a Yaduha-compatible
+      Pydantic grammar package. A vision-language model produces an English
+      caption; that grammar deterministically renders it into the target
+      language. <strong>No training, no fine-tuning, no parallel
+      corpora.</strong>
+    </p>
+    <p class="hero-actions">
+      <a class="button primary" href="https://github.com/kubishi/americasnlp-2026-shared-task">Source on GitHub</a>
+      <a class="button" href="#results">Aggregate results</a>
+      <a class="button" href="#explorer">Translation explorer</a>
+    </p>
+  </div>
+</header>
+
+<main>
+
+<section id="abstract">
+  <div class="container narrow">
+    <h2>Abstract</h2>
+    <p>
+      We submit to all five language tracks of the AmericasNLP 2026 Shared
+      Task on Cultural Image Captioning &mdash; Bribri (bzd), Guaraní (grn),
+      Yucatec Maya (yua), Orizaba Nahuatl (nlv), and Wixárika (hch) &mdash;
+      using a single architecture: image + strict-Literal Pydantic schema
+      &rarr; VLM emits <code>SentenceList</code> JSON via OpenAI structured
+      outputs &rarr; deterministic Python rendering into the target language.
+      The grammar packages are authored end-to-end by an Anthropic Opus 4.7
+      coding agent that consults the dev split and open-web references;
+      humans never edit the resulting <code>yaduha-{iso}</code> packages.
+    </p>
+    <p>
+      Our best-per-language configuration averages <strong>16.86 ChrF++</strong>
+      across the four ChrF++-comparable languages (<strong>+2.44</strong>
+      vs the organizer baseline Qwen3-VL &rarr; NLLB at 14.42), without
+      ever generating target-language tokens directly. The system also
+      covers Yucatec Maya, which the organizer&rsquo;s NLLB pipeline does
+      not. Lemma fields are typed as Pydantic <code>Literal[...]</code>
+      enums &mdash; the LLM cannot emit OOV terms, so output is grammatical
+      by construction. A narrowly-prompted <code>proper_noun</code>
+      escape hatch carries genuine named entities through verbatim.
+    </p>
+  </div>
+</section>
+
+<section id="pipeline">
+  <div class="container narrow">
+    <h2>How the pipeline works</h2>
+    <p>
+      One LLM call per image. The VLM (gpt-5) sees the image and the
+      Pydantic schema and emits a <code>SentenceList</code> JSON via
+      OpenAI's native structured outputs API. The target string is
+      synthesized by Python from each <code>Sentence</code>'s
+      <code>__str__()</code> &mdash; <em>the model never sees or generates
+      target-language tokens</em>.
+    </p>
+    <pre class="diagram">
+   image
+     │  gpt-5 with strict-Literal schema (OpenAI structured outputs)
+     ▼
+   list[Sentence]   ── Sentence.__str__() (deterministic Python) ──►  target caption
+    </pre>
+    <p>
+      The <code>yaduha-{iso}</code> packages are authored by a coding agent
+      &mdash; not by us. The agent gets the dev captions, web search, and a
+      reference implementation (<code>yaduha-hch</code>, <code>yaduha-ovp</code>),
+      and produces a complete Pydantic schema with a vocabulary, sentence
+      types, and morphology. Lemma fields are typed as
+      <code>Literal[...]</code> enums so the LLM is forced to pick from the
+      package's vocabulary. Genuine proper nouns can pass through verbatim
+      via the <code>proper_noun: Optional[str]</code> slot &mdash; narrowly
+      prompted to discourage abuse.
+    </p>
+  </div>
+</section>
+
+<section id="results">
+  <div class="container">
+    <h2>Aggregate results &mdash; dev split, ChrF++</h2>
+    <p class="caption">
+      Per-language mean ChrF++ on the 50-row dev split. Each cell is the
+      mean of per-row ChrF++ scores. The <strong>★ rows</strong> are
+      our configurations (the primary submission config is highlighted);
+      the bottom row is the few-shot direct-prompting baseline. All sweeps
+      use the new strict-Literal schema, no silent OOV stripping, and
+      gpt-4o-mini for back-translation. Click any column header to see
+      how a configuration translates the actual images.
+    </p>
+    <div class="table-wrap">
+      <table id="agg-table">
+        <thead>
+          <tr>
+            <th>Configuration</th>
+            <!-- one column per language, populated by JS -->
+            <th class="num center" id="agg-mean">mean<sup>*</sup></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="caption footnote">
+      <sup>*</sup>Mean over the 4 ChrF++-comparable languages
+      (bzd / grn / nlv / hch); the organizer&rsquo;s NLLB baseline does not
+      cover yua, so we exclude yua from the mean for direct comparison.
+      Organizer baseline reference (Qwen3-VL &rarr; NLLB):
+      <strong>14.42</strong> over the same four languages.
+    </p>
+  </div>
+</section>
+
+<section id="explorer">
+  <div class="container wide">
+    <h2>Translation explorer</h2>
+    <p class="caption">
+      Inspect every dev image and how each configuration captioned it.
+      Each column header has a search box (per-column filter) and is
+      click-sortable. Click a row to see the full image alongside the
+      predicted caption, back-translated English, and &mdash; for the
+      pipeline method &mdash; the English intermediate the VLM produced.
+    </p>
+
+    <p class="explorer-summary" id="explorer-summary"></p>
+
+    <div class="table-wrap explorer-table-wrap">
+      <table id="explorer-table">
+        <thead>
+          <tr class="header-row">
+            <th class="thumb-col">Image</th>
+            <th class="sortable" data-col="lang">Language ▾</th>
+            <th class="sortable" data-col="config">Configuration ▾</th>
+            <th class="sortable" data-col="id">ID ▾</th>
+            <th class="sortable" data-col="gold">Gold caption ▾</th>
+            <th class="sortable" data-col="pred">Predicted ▾</th>
+            <th class="sortable" data-col="back">Back-translated ▾</th>
+            <th class="num sortable" data-col="chrf">ChrF++ ▾</th>
+          </tr>
+          <tr class="filter-row">
+            <th></th>
+            <th><select id="filter-lang" class="col-filter">
+              <option value="">all</option>
+            </select></th>
+            <th><select id="filter-config" class="col-filter">
+              <option value="">all</option>
+            </select></th>
+            <th><input id="filter-id" type="search" placeholder="filter…" class="col-filter" /></th>
+            <th><input id="filter-gold" type="search" placeholder="filter…" class="col-filter" /></th>
+            <th><input id="filter-pred" type="search" placeholder="filter…" class="col-filter" /></th>
+            <th><input id="filter-back" type="search" placeholder="filter…" class="col-filter" /></th>
+            <th class="num">
+              <span class="range-row">
+                <input id="filter-chrf-min" type="number" min="0" max="100" placeholder="min" class="col-filter num-filter" />
+                <input id="filter-chrf-max" type="number" min="0" max="100" placeholder="max" class="col-filter num-filter" />
+              </span>
+            </th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="explorer-charts-row">
+      <div class="chart-card">
+        <h3>ChrF++ by language
+          <span class="chart-hint">mean ± 1 SEM</span></h3>
+        <canvas id="chart-by-lang"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>ChrF++ distribution</h3>
+        <canvas id="chart-histogram"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="methods">
+  <div class="container narrow">
+    <h2>Recipe</h2>
+    <ol class="recipe">
+      <li><strong>Generate the language package</strong>:
+        <code>uv run americasnlp generate-language --iso bzd</code>
+        runs an Opus 4.7 agent with web search, package read tools, and a
+        validation harness over the 30-row training slice of dev. The
+        agent emits a complete <code>yaduha-bzd</code> Python package
+        (Pydantic <code>Sentence</code> classes + vocabulary).</li>
+      <li><strong>Caption the dev split</strong>:
+        <code>americasnlp evaluate --language bribri --method one-step
+        --vlm gpt-5</code>. The single API call sends the image plus
+        the schema; gpt-5's structured-outputs API enforces the
+        <code>Literal[...]</code> lemma constraint at validation time.</li>
+      <li><strong>Pick the best config per language</strong> from the
+        dev matrix above &mdash; gpt-5 one-step wins on grn / yua / nlv
+        / hch; sonnet-vl + gpt-4o (two-step) edges it out on bzd.</li>
+      <li><strong>Submit on the test split</strong>:
+        <code>americasnlp submit --language bribri --method one-step
+        --vlm gpt-5 --output …</code>.</li>
+    </ol>
+    <p>
+      The full submission pipeline is the same Python module run on every
+      image: no per-image tuning, no inference-time ensembling. The
+      contribution is the auto-generated grammar plus the strict
+      schema-enforced rendering.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="container narrow">
+    <p>
+      Project page for the AmericasNLP&nbsp;2026 Shared Task entry from
+      Loyola Marymount University. Source code (this site, the captioner,
+      the generator agent, and all five <code>yaduha-{iso}</code> packages)
+      is open-source on GitHub. The framework lives at
+      <a href="https://github.com/kubishi/yaduha-2"><code>kubishi/yaduha</code></a>;
+      the OVP reference at
+      <a href="https://github.com/kubishi/yaduha-ovp"><code>kubishi/yaduha-ovp</code></a>.
+    </p>
+  </div>
+</footer>
+
+</main>
+
+<!-- Row-detail modal -->
+<dialog id="detail-modal">
+  <div class="modal-body">
+    <button class="modal-close" aria-label="close">&times;</button>
+    <h3 id="detail-source"></h3>
+    <p class="detail-type" id="detail-type"></p>
+    <img id="detail-image" alt="" />
+    <div class="detail-grid"></div>
+    <h4 class="english-h4">English intermediate (VLM output)</h4>
+    <pre class="english" id="detail-english"></pre>
+  </div>
+</dialog>
+
+</body>
+</html>

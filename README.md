@@ -1,70 +1,75 @@
 # AmericasNLP 2026 — LLM-Assisted RBMT for Image Captioning
 
-Entry in the [AmericasNLP 2026 Shared Task on Cultural Image Captioning](https://americasnlp.org/2026_st.html). An agent reads the dev captions plus open-web references for each language and writes a Yaduha-compatible Pydantic grammar package. A VLM produces an English caption; that grammar deterministically renders it as a target-language caption. No training, no fine-tuning.
+Entry in the [AmericasNLP 2026 Shared Task on Cultural Image Captioning](https://americasnlp.org/2026_st.html). An agent reads the dev captions plus open-web references for each language and writes a Yaduha-compatible Pydantic grammar package. The grammar's lemma fields are typed as `Literal[...]` enums, so a strong VLM (gpt-5) emits structured `SentenceList` output that Python deterministically renders into the target language. No training, no fine-tuning, no silent OOV stripping — schema-enforced grammaticality end-to-end.
 
 ```
-image → [VLM] → English → [EnglishToSentencesTool] → Sentence → Sentence.__str__() → target
+image → [VLM with strict-Literal schema] → SentenceList → Sentence.__str__() → target
 ```
 
 ## Methods
 
 | method | description | when to use |
 |---|---|---|
-| `pipeline` | The proposed system: image → VLM English → structured-output translator → render. Two LLM calls. Grammatical-by-construction. | Primary captioner. |
-| `one-step` | Image → structured Sentence JSON directly via VLM (no English intermediate). One LLM call. | Diagnostic / cost-saving comparison. Currently weaker than two-step at every model tier. |
-| `direct` | Image → target caption directly (no structure). Few-shot from dev. | Baseline only. Output is fluent-looking but unverified. |
+| `one-step` | Single VLM call: image + schema → `SentenceList` JSON via OpenAI structured outputs. | **Primary captioner (with gpt-5 as VLM).** |
+| `pipeline` | Two-step: image → VLM English → structured-output translator → render. | Useful for cheap iteration with claude-vl + gpt-4o-mini; loses at peak quality. |
+| `direct` | Image → target caption directly (no structure). Few-shot. | Baseline only. Output unverified. |
 
 Backend dispatch is by model-name prefix: `claude-*` → Anthropic; `gpt-*`, `o1-*`, `o3-*`, `ft:*` → OpenAI; ollama-style names like `qwen2.5vl:32b` → local Ollama (`http://127.0.0.1:11434`).
 
+## Architectural decisions (2026-04-30)
+
+Several invariants the pipeline now enforces:
+
+- **Strict-Literal lemma typing.** Every lemma field in every package is typed `Literal["dog", "cat", ...]` from the package's vocab list. The LLM's structured output cannot emit OOV terms — Pydantic rejects them at validation time. This is what kills the "silent OOV stripping" failure mode the original yaduha-hch package suffered from.
+- **No bracket-stripping.** The `clean_text` function inside yaduha's `PipelineTranslator` no longer strips `[english_placeholder]` patterns. Combined with strict-Literal typing, placeholders should never appear at the surface level — but if they do, they're visible (a transparency property, not noise).
+- **Proper-noun escape hatch.** Every package's `Noun` model has `proper_noun: Optional[str]` for genuine named entities (Mercado 4, Asunción, etc.). Lemma fields stay strict; the `proper_noun` slot is the carefully-prompted exception.
+- **hch CopularSentence removed.** Wixárika has no Adjective concept in our package, so `CopularSentence` was being abused as a fallback for property predication ("the bag is green"), producing degenerate "X is X" tautology cascades. Removing the type forces property sentences to be dropped at parse time — honest given the grammar's coverage.
+
 ## Results (dev set, ChrF++, N=50/lang)
 
-**Two-step pipeline across 4 cloud models:**
+Headline sweep, 2026-04-30, with the schema fixes above:
 
-| iso | organizer baseline | direct 3-shot (claude) | claude-snt-4-5 | gpt-4o-mini | gpt-4o | gpt-5 |
-|---|--:|--:|--:|--:|--:|--:|
-| bzd | 7.57 | 9.43 | **10.72** | 8.53 | 9.45 | 10.45 |
-| grn | **20.82** | 18.37 | 15.38 | 13.56 | 12.72 | 17.18 |
-| yua | — | 18.86 | **24.51** | 21.84 | 23.96 | 24.10 |
-| nlv | 11.53 | 21.56 | 23.16 | 22.20 | 22.72 | **23.82** |
-| hch | **17.77** | 18.14 | 11.08 | 11.43 | 11.47 | 15.52 |
+| iso | organizer baseline | gpt-5 one-step | claude-vl + gpt-4o-mini | claude-vl + gpt-4o |
+|---|--:|--:|--:|--:|
+| bzd | 7.57 | 9.62 | 10.38 | **10.97** |
+| grn | **20.82** | **18.57** | 15.32 | 15.63 |
+| yua | — | **25.09** | 16.48 | 17.02 |
+| nlv | 11.53 | **22.89** | 16.81 | 16.79 |
+| hch | **17.77** | **16.08** | 15.56 | 14.73 |
+| **5-lang mean** | — | **18.45** | 14.91 | 15.03 |
+| **4-lang mean (excl yua)** | **14.42** | **16.79** | 14.52 | 14.53 |
 
-**Local-VLM and one-step variants.** For the qwen row, qwen2.5vl:32b acts as *both* the VLM and the structured-output translator — a fully-local, zero-cost configuration. The 2026-04-23 open-weight translator scan confirmed qwen2.5vl:32b is the strongest local translator of what's on hand; neither the text-only `qwen2.5:32b` sibling, `mixtral:8x22b`, `llama3.1:8b`, nor `llama4:latest` beat it on this task.
+**Best-per-lang picks (mixed configs):**
 
-| iso | qwen2.5vl:32b (local, free) | one-step gpt-4o-mini |
-|---|--:|--:|
-| bzd | 7.92 | 3.25 |
-| grn | 13.50 | 13.18 |
-| yua | 18.64 | 20.17 |
-| nlv | 21.69 | 16.97 |
-| hch | 11.44 | 8.94 |
+| iso | best config | ChrF |
+|---|---|--:|
+| bzd | claude-vl + gpt-4o | 10.97 |
+| grn | gpt-5 one-step | 18.57 |
+| yua | gpt-5 one-step | 25.09 |
+| nlv | gpt-5 one-step | 22.89 |
+| hch | gpt-5 one-step | 16.08 |
+| **mean (5-lang)** | | **18.71** |
+| **mean (4-lang excl yua)** | | **16.86** |
 
-**Headline averages over the 4 ChrF++-comparable languages (bzd / grn / nlv / hch):**
+**Vs organizer baseline (Qwen3-VL → NLLB):** **+2.44 ChrF** on the 4 comparable languages, plus full coverage of yua which their NLLB pipeline doesn't translate.
 
-| | mean |
-|---|--:|
-| organizer baseline (Qwen3-VL → NLLB) | 14.42 |
-| our direct 3-shot, claude-sonnet-4-5 | 16.88 |
-| our pipeline, gpt-4o-mini (cloud, ~$1/sweep) | 13.93 |
-| our pipeline, qwen2.5vl:32b (local, free) | 13.64 |
-| our pipeline, claude-sonnet-4-5 (cloud, ~$5/sweep) | 15.09 |
-| our pipeline, gpt-5 (cloud, ~$25/sweep) | 16.74 |
-| **our pipeline, best-per-lang (cloud)** | **16.81** |
-
-**Best per-language pipeline picks:** bzd → claude-sonnet-4-5; grn → gpt-5; yua → claude-sonnet-4-5; nlv → gpt-5; hch → gpt-5.
+Per-language wins / losses:
+- Wins: bzd (+3.40), nlv (+11.36), yua (full coverage)
+- Losses: grn (-2.25), hch (-1.69)
 
 **Key takeaways**
-- We beat the organizer baseline (Qwen3-VL → NLLB) on bzd (+3.15) and nlv (+12.29); lose on grn (-3.64) and hch (-2.25); cover yua which their NLLB pipeline doesn't.
-- `qwen2.5vl:32b` (local, as both VLM and translator) lands at 4-lang avg **13.64** — roughly matching our `gpt-4o-mini` cloud pipeline (13.93) at $0 cost, but still 0.78 below the organizer baseline's 14.42. Scan of locally-available open-weight translators found nothing stronger than qwen2.5vl:32b itself for the structured-output step.
-- One-step (image → structured directly) loses to two-step at every model tier: the English intermediate is doing real work, and VLMs are weaker at structured-output JSON than text translators.
-- Best-per-lang pipeline ties direct 3-shot on average and adds the grammaticality-by-construction property.
-- The open-weight gap to gpt-5 / claude-3-shot does **not** live in the translator step — the languages where our pipeline underperforms the organizer baseline (grn, hch) are exactly the ones with the thinnest yaduha package coverage. Investment should go into language-package breadth, not translator-model substitution.
+
+- **gpt-5 one-step is the strongest single config** on 4 of 5 languages (everything except bzd). Single API call, no two-step pipeline, the VLM with the schema in context handles structured output natively.
+- **Open-weight VLM substitution costs ~2 ChrF** but isn't competitive at the peak — `qwen2.5vl:32b` as both VLM and translator lands around 14.6 mean. With the new strict-Literal schema, open-weight *translators* fail outright (parse errors on every row); the schema strictness is incompatible with non-fine-tuned local models.
+- **The grn/hch losses are language-package coverage gaps** (vocabulary breadth + grn morphology + hch's missing Adjective concept), not translator-model issues. Same diagnosis as the previous version of this README; the schema fixes address grammaticality but not coverage.
+- **Cost picture:** dev sweep with gpt-5 one-step ≈ $7 (250 rows); test submission ≈ $29 (990 rows). Two-step sweeps with gpt-5 are 2-3× more expensive because the schema gets shipped on every call.
 
 ## How it works
 
 1. `generate-language --iso <code>` runs an Anthropic Opus 4.7 agent with these tools: web search, read reference yaduha-{hch,ovp} packages, read training-slice captions, extract content-word frequencies, write package files, `validate_package`, `test_translate_english`, `compare_pipeline_to_targets`.
 2. The generator only ever sees a deterministic **training slice** (30 of 50 dev rows); the other 20 are held out for honest scoring (`--val-only`). Bootstrap prompt forbids hardcoded `if english == "..."` shortcuts and keys everything to structured `Sentence` inputs.
-3. The produced `yaduha-{iso}` package is a standalone Python package with Pydantic `Sentence` subclasses. `__str__()` is deterministic Python — no LLM at render time. OOV lemmas render as `[english_lemma]`.
-4. `evaluate --method pipeline` runs image → VLM English → `PipelineTranslator` → target. `--method one-step` runs image → structured Sentence directly via OpenAI's structured outputs. `--method direct` is the few-shot text baseline.
+3. The produced `yaduha-{iso}` package is a standalone Python package with Pydantic `Sentence` subclasses. Lemma fields are typed `Literal[...]` from the package's vocab list, so the LLM cannot emit OOV terms. `__str__()` is deterministic Python — no LLM at render time. Genuine proper nouns can pass through verbatim via the `proper_noun: Optional[str]` slot on `Noun`, narrowly prompted to discourage abuse.
+4. `evaluate --method one-step --vlm gpt-5` runs the strongest config: a single OpenAI structured-output call with image + schema. `--method pipeline` runs the two-step variant for cheap iteration. `--method direct` is the few-shot text baseline.
 
 See [`DESIGN.md`](DESIGN.md) for the thesis, [`docs/bootstrap_language.md`](docs/bootstrap_language.md) for the generator workflow, [`docs/auto_finetuning_spec.md`](docs/auto_finetuning_spec.md) for the proposed open-weight fine-tuning extension, [`PROGRESS.md`](PROGRESS.md) for team / journey notes.
 
@@ -105,31 +110,29 @@ uv run americasnlp submit --language bribri --method pipeline --vlm <model> \
 
 ## Cost discipline (please follow)
 
-All eval costs scale with `langs × 50 dev rows × ~3 API calls/row`. Observed per full-dev sweep:
+Observed per full-dev sweep (250 rows, after the 2026-04-30 schema fixes):
 
 | sweep | cost |
 |---|--:|
-| 5 langs × `qwen2.5vl:32b` (local) | $0 |
-| 5 langs × `gpt-4o-mini` | ~$1 |
-| 5 langs × `claude-sonnet-4-5` | ~$5 |
-| 5 langs × `gpt-4o` | ~$10 |
-| 5 langs × `gpt-5` | ~$25 |
+| `pipeline` claude-vl + gpt-4o-mini translator + gpt-4o-mini BT | ~$3 |
+| `pipeline` claude-vl + gpt-4o translator + gpt-4o-mini BT | ~$5 |
+| `pipeline` claude-vl + gpt-5 translator + gpt-4o-mini BT | ~$15 |
+| `pipeline` qwen2.5vl:32b VLM + gpt-4o-mini translator + gpt-4o-mini BT | ~$1 |
+| `one-step` gpt-5 (single call) | **~$7** |
 
-**Default to `gpt-4o-mini` or `qwen2.5vl:32b` (local) during iteration.** Both are at the floor of the model matrix and cost ≪ 1 cent per row. Use them to:
-- Smoke-test new generator runs / package changes
-- Compare two language-package versions (relative deltas are usually consistent across model tiers)
-- Iterate on prompt or pipeline changes
+**Test-set submission cost (990 rows):**
 
-**Use the matrix above as a lift predictor.** Typical lifts when upgrading:
-- `gpt-4o-mini → gpt-4o`: +0.5 to +3 ChrF++
-- `gpt-4o-mini → gpt-5`: +2 to +5 ChrF++
-- `gpt-4o-mini → claude-sonnet-4-5`: +2 to +4 ChrF++ (and stronger on yua)
+| config | cost |
+|---|--:|
+| `one-step` gpt-5 on all 5 langs | ~$29 |
+| best-per-lang (gpt-5 one-step on 4 + claude-vl+gpt-4o on bzd) | ~$30 |
+| `pipeline` gpt-5 two-step on all 5 langs (with BT) | ~$100 |
 
-If a change improves `gpt-4o-mini` numbers, expect a similar relative improvement on the strong models. Don't re-sweep `gpt-5` / `claude-sonnet-4-5` unless the dev matrix is genuinely stale (e.g. after a major package or pipeline refactor).
+**Default to `gpt-4o-mini` translator during iteration.** Cheap and saturates the structured-output task on these schemas; switching to gpt-4o or gpt-5 in the translator slot doesn't reliably move the needle.
 
-**Reserve the strong models** (`gpt-5`, `claude-sonnet-4-5`, `claude-opus-*`, future Opus tiers) for:
-- Final submission runs (best-per-lang on the 990-row test set, ~$30 total)
-- One sanity check after a major refactor to confirm the matrix shape still holds
+**For peak quality, use gpt-5 one-step.** It dominates the matrix on 4/5 languages.
+
+**Reserve open-weight translator slots** for the qwen2.5vl:32b VLM step (free, near-cloud quality on the VLM side). Open-weight translators are unreliable with strict-Literal schemas — they fail validation on most rows.
 
 ## Repository layout
 
@@ -152,10 +155,10 @@ DESIGN.md  PROGRESS.md
 
 ## Open directions (no commitments yet)
 
-- **Prompt engineering on the VLM step**: actively steer the English caption / one-step output toward in-vocab lemmas via "use the simplest possible vocabulary" / hypernym-substitution guidance. Initial test on one-step lifted yua by +5.16 and grn by +3.97. Same idea may help two-step.
-- **Auto-finetuning** ([`docs/auto_finetuning_spec.md`](docs/auto_finetuning_spec.md)): port the OVP `feature/weakmodels` recipe (LoRA-fine-tune Qwen2.5-3B as the structured-output translator, training data synthesized from the language package itself). Two paths: local LoRA (Path A) or OpenAI fine-tune of `gpt-4o-mini` (Path B). Currently on hold.
-- **Expand language packages**: agent-driven vocab/sentence-type expansion for the languages where we currently lose to the organizer baseline (grn, hch).
-- **Submission-mode generators**: re-run with `--train-frac 1.0` so the agent sees all dev rows before final test submissions.
+- **Morphological renderer for grn**: implement the t/r/h consonant alternation for possessed nouns and verb subject prefixes. Currently the package emits base forms (e.g. `tetã` for "country") while gold uses possessed forms (`ñane retã` = "our country"); chrF doesn't credit the overlap. ~2-3 hours of careful Guaraní morphology work.
+- **Adjective concept for hch**: Wixárika doesn't use English-style attributive adjectives heavily, but a small adjective slot + property-as-stative-verb pattern could absorb some content currently dropped. The 2026-04-30 vocab probe found web-sourced Wixárika color terms don't appear in dev gold — needs a real Wixárika dictionary, not blog references.
+- **Cultural-NER prompting**: for grn especially, gold often names specific places ("Mercado 4", "Panteón de los Héroes") that the VLM doesn't visually identify. The `proper_noun` infrastructure is in place; the bottleneck is VLM-side recognition.
+- **Auto-finetuning** ([`docs/auto_finetuning_spec.md`](docs/auto_finetuning_spec.md)): port the OVP `feature/weakmodels` recipe (LoRA-fine-tune Qwen2.5-3B as the structured-output translator, training data synthesized from the language package itself). Pre-2026-04-30 schema, this was on hold; with strict Literal schemas, it's now necessary if we want viable open-weight translators.
 
 ## Sister projects
 

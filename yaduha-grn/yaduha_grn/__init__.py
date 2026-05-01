@@ -49,7 +49,7 @@ from __future__ import annotations
 import re
 from enum import Enum
 from random import choice, randint, random
-from typing import Dict, Generator, List, Optional, Tuple, Union
+from typing import Dict, Generator, List, Literal, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field
 
@@ -91,6 +91,14 @@ NOUN_LOOKUP: Dict[str, VocabEntry]              = {e.english: e for e in NOUNS}
 TRANSITIVE_VERB_LOOKUP: Dict[str, VocabEntry]   = {e.english: e for e in TRANSITIVE_VERBS}
 INTRANSITIVE_VERB_LOOKUP: Dict[str, VocabEntry] = {e.english: e for e in INTRANSITIVE_VERBS}
 ADJECTIVE_LOOKUP: Dict[str, VocabEntry]         = {e.english: e for e in ADJECTIVES}
+
+# Closed lemma vocabularies — typed as Literal so the LLM's structured
+# output cannot emit out-of-vocabulary terms.
+NounLemma = Literal[*tuple(sorted(NOUN_LOOKUP))]  # type: ignore[valid-type]
+AdjectiveLemma = Literal[*tuple(sorted(ADJECTIVE_LOOKUP))]  # type: ignore[valid-type]
+TransitiveVerbLemma = Literal[*tuple(sorted(TRANSITIVE_VERB_LOOKUP))]  # type: ignore[valid-type]
+IntransitiveVerbLemma = Literal[*tuple(sorted(INTRANSITIVE_VERB_LOOKUP))]  # type: ignore[valid-type]
+VerbLemma = Literal[*tuple(sorted(TRANSITIVE_VERB_LOOKUP | INTRANSITIVE_VERB_LOOKUP))]  # type: ignore[valid-type]
 
 
 def get_noun_target(lemma: str) -> str:
@@ -212,79 +220,72 @@ def _pluralize_noun(target: str) -> str:
 # Pydantic models
 # ---------------------------------------------------------------------------
 class Noun(BaseModel):
-    head: str = Field(
+    head: NounLemma = Field(
         ...,
-        json_schema_extra={
-            "description": (
-                "A noun lemma. Known: "
-                + ", ".join(e.english for e in NOUNS)
-                + ". If unknown, pass the English word as a placeholder."
-            )
-        },
+        description=(
+            "A noun lemma. Pick the closest match from the enum. Use a "
+            "hypernym if the literal noun isn't listed (e.g. 'chihuahua' → "
+            "'dog'). When you set 'proper_noun', still pick the closest "
+            "hypernym here as a type hint."
+        ),
+    )
+    proper_noun: Optional[str] = Field(
+        default=None,
+        description=(
+            "Optional verbatim string for proper nouns (named entities) "
+            "that lack an in-vocab lemma — e.g. 'Mercado 4', 'Panteón de "
+            "los Héroes', 'Asunción', 'Maria'. When set, this string is "
+            "rendered verbatim INSTEAD OF the 'head' lemma. **Use only "
+            "for actual named entities. Do NOT use as a placeholder for "
+            "unknown common nouns — pick a hypernym from the lemma list "
+            "instead.**"
+        ),
     )
     number: Number = Number.singular
-    modifier: Optional[str] = Field(
+    modifier: Optional[AdjectiveLemma] = Field(
         default=None,
-        json_schema_extra={
-            "description": (
-                "Optional attributive adjective lemma, rendered AFTER the head "
-                "noun (Guaraní 'óga morotĩ' = 'white house'). Known: "
-                + ", ".join(e.english for e in ADJECTIVES)
-                + ". If unknown, pass the English word as a placeholder. "
-                "Leave null if the noun has no adjectival modifier."
-            )
-        },
+        description=(
+            "Optional attributive adjective lemma, rendered AFTER the head "
+            "noun (Guaraní 'óga morotĩ' = 'white house'). Pick from the "
+            "enum or leave null."
+        ),
     )
-    material: Optional[str] = Field(
+    material: Optional[NounLemma] = Field(
         default=None,
-        json_schema_extra={
-            "description": (
-                "Optional material-of noun lemma; rendered as 'ojejapóva X-gui' "
-                "(~'made of X') after the noun. Use for phrases like 'a basket "
-                "of wicker', 'a jar of clay'. Known noun lemmas same as head. "
-                "Leave null if the noun has no material phrase."
-            )
-        },
+        description=(
+            "Optional material-of noun lemma; rendered as 'ojejapóva X-gui' "
+            "(~'made of X') after the noun. Use for phrases like 'a basket "
+            "of wicker'. Leave null if the noun has no material phrase."
+        ),
     )
 
 
 class Verb(BaseModel):
-    lemma: str = Field(
+    lemma: VerbLemma = Field(
         ...,
-        json_schema_extra={
-            "description": (
-                "A verb lemma. Known: "
-                + ", ".join(e.english for e in TRANSITIVE_VERBS + INTRANSITIVE_VERBS)
-                + ". If unknown, pass the English word as a placeholder."
-            )
-        },
+        description=(
+            "A verb lemma. Pick the closest match from the enum; use a "
+            "hypernym if the literal action isn't listed."
+        ),
     )
     tense_aspect: TenseAspect = TenseAspect.present
 
 
 class TransitiveVerb(Verb):
-    lemma: str = Field(
+    lemma: TransitiveVerbLemma = Field(
         ...,
-        json_schema_extra={
-            "description": (
-                "A transitive verb lemma. Known: "
-                + ", ".join(e.english for e in TRANSITIVE_VERBS)
-                + ". If unknown, pass the English word as a placeholder."
-            )
-        },
+        description=(
+            "A transitive verb lemma. Pick the closest match from the enum."
+        ),
     )
 
 
 class IntransitiveVerb(Verb):
-    lemma: str = Field(
+    lemma: IntransitiveVerbLemma = Field(
         ...,
-        json_schema_extra={
-            "description": (
-                "An intransitive verb lemma. Known: "
-                + ", ".join(e.english for e in INTRANSITIVE_VERBS)
-                + ". If unknown, pass the English word as a placeholder."
-            )
-        },
+        description=(
+            "An intransitive verb lemma. Pick the closest match from the enum."
+        ),
     )
 
 
@@ -297,7 +298,10 @@ def _render_noun(noun: Noun) -> str:
     If the head is missing we return "" outright, so modifier/material never
     surface as a decapitated NP.
     """
-    head = get_noun_target(noun.head)
+    if noun.proper_noun:
+        head = noun.proper_noun.strip()
+    else:
+        head = get_noun_target(noun.head)
     if not head:
         return ""
     parts: List[str] = [head]

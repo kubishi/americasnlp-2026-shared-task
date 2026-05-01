@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Dict, Generator, List, Optional, Tuple, Type, Union
+from typing import Dict, Generator, List, Literal, Optional, Tuple, Type, Union
 from enum import Enum
 from random import choice, randint
 
@@ -10,6 +10,13 @@ from yaduha_hch.vocab import NOUNS, TRANSITIVE_VERBS, INTRANSITIVE_VERBS
 NOUN_LOOKUP: Dict[str, VocabEntry] = {entry.english: entry for entry in NOUNS}
 TRANSITIVE_VERB_LOOKUP: Dict[str, VocabEntry] = {entry.english: entry for entry in TRANSITIVE_VERBS}
 INTRANSITIVE_VERB_LOOKUP: Dict[str, VocabEntry] = {entry.english: entry for entry in INTRANSITIVE_VERBS}
+
+# Closed lemma vocabularies — typed as Literal so the LLM's structured
+# output cannot emit out-of-vocabulary terms.
+NounLemma = Literal[*tuple(sorted(NOUN_LOOKUP))]  # type: ignore[valid-type]
+TransitiveVerbLemma = Literal[*tuple(sorted(TRANSITIVE_VERB_LOOKUP))]  # type: ignore[valid-type]
+IntransitiveVerbLemma = Literal[*tuple(sorted(INTRANSITIVE_VERB_LOOKUP))]  # type: ignore[valid-type]
+VerbLemma = Literal[*tuple(sorted(TRANSITIVE_VERB_LOOKUP | INTRANSITIVE_VERB_LOOKUP))]  # type: ignore[valid-type]
 
 
 def get_noun_target(lemma: str) -> str:
@@ -213,44 +220,53 @@ OBJECT_PREFIXES: Dict[Person, str] = {
 # ============================================================================
 
 class Verb(BaseModel):
-    lemma: str = Field(
+    lemma: VerbLemma = Field(
         ...,
-        json_schema_extra={
-            'description': 'A verb lemma (transitive or intransitive). '
-                f'Known verbs: {", ".join(entry.english for entry in TRANSITIVE_VERBS + INTRANSITIVE_VERBS)}. '
-                'If the exact verb is not in this list, use the English lemma as a placeholder.'
-        }
+        description=(
+            "A verb lemma (transitive or intransitive). Pick the closest "
+            "match from the enum; use a hypernym if the literal action "
+            "isn't listed."
+        ),
     )
     tense_aspect: TenseAspect
 
 class TransitiveVerb(Verb):
-    lemma: str = Field(
+    lemma: TransitiveVerbLemma = Field(
         ...,
-        json_schema_extra={
-            'description': 'A transitive verb lemma. '
-                f'Known transitive verbs: {", ".join(entry.english for entry in TRANSITIVE_VERBS)}. '
-                'If the exact verb is not in this list, use the English lemma as a placeholder.'
-        }
+        description=(
+            "A transitive verb lemma. Pick the closest match from the enum."
+        ),
     )
 
 class IntransitiveVerb(Verb):
-    lemma: str = Field(
+    lemma: IntransitiveVerbLemma = Field(
         ...,
-        json_schema_extra={
-            'description': 'An intransitive verb lemma. '
-                f'Known intransitive verbs: {", ".join(entry.english for entry in INTRANSITIVE_VERBS)}. '
-                'If the exact verb is not in this list, use the English lemma as a placeholder.'
-        }
+        description=(
+            "An intransitive verb lemma. Pick the closest match from the enum."
+        ),
     )
 
 class Noun(BaseModel):
-    head: str = Field(
+    head: NounLemma = Field(
         ...,
-        json_schema_extra={
-            'description': 'A noun lemma. '
-                f'Known nouns: {", ".join(entry.english for entry in NOUNS)}. '
-                'If the exact noun is not in this list, use the English lemma as a placeholder.'
-        }
+        description=(
+            "A noun lemma. Pick the closest match from the enum; use a "
+            "hypernym if the literal noun isn't listed (e.g. 'chihuahua' → "
+            "'dog'). When you set 'proper_noun', still pick the closest "
+            "hypernym here as a type hint."
+        ),
+    )
+    proper_noun: Optional[str] = Field(
+        default=None,
+        description=(
+            "Optional verbatim string for proper nouns (named entities) "
+            "that lack an in-vocab lemma — e.g. 'Tatewari', 'Wirikuta', "
+            "'Maria', a place name. When set, this string is rendered "
+            "verbatim INSTEAD OF the 'head' lemma. **Use only for "
+            "actual named entities. Do NOT use as a placeholder for "
+            "unknown common nouns — pick a hypernym from the lemma "
+            "list instead.**"
+        ),
     )
     number: Number
 
@@ -261,6 +277,8 @@ class Noun(BaseModel):
 
 def render_noun(noun: Noun) -> str:
     """Render a Noun (with number inflection)."""
+    if noun.proper_noun:
+        return noun.proper_noun.strip()
     if noun.number == Number.plural:
         return get_plural_form(noun.head)
     return get_noun_target(noun.head)
@@ -481,13 +499,18 @@ class SubjectVerbObjectSentence(Sentence["SubjectVerbObjectSentence"]):
 
 
 class CopularSentence(Sentence["CopularSentence"]):
-    """Copular / equative sentence: "X is (a) Y".
+    """Equative sentence: "X is a Y" — class-membership only.
 
     Rendered as: subject predicate p+h+k+
     The particle "p+h+k+" is the Wixárika copula ('it is').
 
-    Use this for image captions of the form "X is a Y" or
-    "X is Y (a descriptor)".
+    **Use this only when the predicate is a different category of thing
+    from the subject** ("the man is a shaman", "the building is a
+    school"). Do NOT use for property predication ("the bag is green",
+    "the house is big") — Wixárika expresses properties through verbs
+    or context, not via a copula. If the English says "X is COLOR" or
+    "X is BIG/SMALL/OLD/etc.", omit that sentence entirely; the
+    descriptor cannot be carried into Wixárika by this schema.
     """
     subject: Union[Noun, Person]
     predicate: Noun
@@ -495,6 +518,12 @@ class CopularSentence(Sentence["CopularSentence"]):
     def __str__(self) -> str:
         subj_str = render_subject_independent(self.subject)
         pred_str = render_noun(self.predicate)
+        # Skip degenerate "X is X" tautologies: when the LLM falls back to
+        # CopularSentence for an English sentence the schema can't carry
+        # (e.g. "the bag is green"), the predicate slot collapses onto the
+        # subject. Returning "" here drops the noise from the rendered output.
+        if subj_str and pred_str and subj_str == pred_str:
+            return ""
         parts = [p for p in [subj_str, pred_str, "p+h+k+"] if p]
         return " ".join(parts)
 
@@ -654,10 +683,15 @@ class CoordinatedSentence(Sentence["CoordinatedSentence"]):
     connective: Connective
 
     def __str__(self) -> str:
-        left_str = str(self.left).rstrip(".")
-        right_str = str(self.right).rstrip(".")
+        left_str = str(self.left).rstrip(".").strip()
+        right_str = str(self.right).rstrip(".").strip()
         particle = self.connective.get_particle()
-        return f"{left_str} {particle} {right_str}"
+        # If either child rendered to empty (e.g. a CopularSentence whose
+        # subject==predicate was dropped), fall back to the surviving
+        # child rather than emit a dangling particle.
+        if left_str and right_str:
+            return f"{left_str} {particle} {right_str}"
+        return left_str or right_str
 
     @classmethod
     def sample_iter(cls, n: int) -> Generator['CoordinatedSentence', None, None]:
@@ -734,7 +768,13 @@ language = Language(
     sentence_types=(
         SubjectVerbSentence,
         SubjectVerbObjectSentence,
-        CopularSentence,
+        # CopularSentence removed: hch has no Adjective concept, so the
+        # LLM was using CopularSentence as a fallback for any "X is Y"
+        # English sentence and producing tautological "X is X" or
+        # nonsense "X is unrelated-noun" output. Without an Adjective
+        # type, English property sentences (the bag is green, the
+        # house is yellow) are dropped at parse time, which is the
+        # honest behavior given the grammar's coverage.
         LocativeSentence,
         CoordinatedSentence,
     ),
