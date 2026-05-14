@@ -259,6 +259,18 @@ def main() -> int:
                 "mean_chrf": round(mean(means), 3),
             })
 
+    # Per-language final-results summary (RAN + our team's ChrF and human-
+    # eval rank + score). These come from americasnlp2026/results/.
+    # Hardcoded here because the upstream README + CSVs don't ship in a
+    # single machine-readable form, and the data is stable.
+    final_results = [
+        {"lang": "bribri",   "ran": "3/2/es-3",      "chrf": 10.03, "chrf_rank": "5/7", "human": 2.895, "human_rank": "1/5"},
+        {"lang": "wixarika", "ran": "4/2/es-4/en-4", "chrf": 15.61, "chrf_rank": "7/8", "human": None,  "human_rank": "DNQ"},
+        {"lang": "maya",     "ran": "5/4/es-4/en-4", "chrf": 23.41, "chrf_rank": "1/6", "human": 2.892, "human_rank": "3/5"},
+        {"lang": "nahuatl",  "ran": "6/4/es-4/en-3", "chrf": 21.00, "chrf_rank": "2/7", "human": 3.465, "human_rank": "1/5"},
+        {"lang": "guarani",  "ran": "6/1/en-6/es-2", "chrf": 16.90, "chrf_rank": "7/8", "human": None,  "human_rank": "DNQ"},
+    ]
+
     # Test-set submission predictions (one row per test sample, one config:
     # gpt-5 one-step + gpt-4o-mini back-translation).
     test_predictions: list[dict] = []
@@ -289,6 +301,7 @@ def main() -> int:
         "samples": samples_list,
         "submission_label": SUBMISSION_LABEL,
         "test_predictions": test_predictions,
+        "final_results": final_results,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(payload, indent=None, separators=(",", ":")))

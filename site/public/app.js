@@ -50,7 +50,32 @@ async function init() {
   buildExplorerControls();
   applyFiltersAndRender();
 
+  buildFinalResultsTable();
   buildSubmissionExplorer();
+}
+
+function buildFinalResultsTable() {
+  if (!state.data?.final_results?.length) return;
+  const tbody = document.querySelector("#final-results-table tbody");
+  if (!tbody) return;
+  const langName = Object.fromEntries(
+    state.data.languages.map(l => [l.key, l.name + " (" + l.iso + ")"])
+  );
+  for (const r of state.data.final_results) {
+    const tr = document.createElement("tr");
+    const chrfRankWin = r.chrf_rank.startsWith("1/");
+    const humanRankWin = r.human_rank.startsWith("1/");
+    const humanRankPodium = ["1/", "2/", "3/"].some(p => r.human_rank.startsWith(p));
+    tr.innerHTML = `
+      <td>${escape(langName[r.lang] || r.lang)}</td>
+      <td class="ran-cell"><code>${escape(r.ran)}</code></td>
+      <td class="num ${chrfRankWin ? 'score-good' : ''}">${escape(r.chrf_rank)}</td>
+      <td class="num">${r.chrf != null ? r.chrf.toFixed(2) : "—"}</td>
+      <td class="num ${humanRankWin ? 'score-good' : (humanRankPodium ? '' : 'score-bad')}">${escape(r.human_rank)}</td>
+      <td class="num">${r.human != null ? r.human.toFixed(3) : "—"}</td>
+    `;
+    tbody.appendChild(tr);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", init);

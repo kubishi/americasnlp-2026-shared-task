@@ -22,10 +22,10 @@
       corpora.</strong>
     </p>
     <p class="hero-actions">
-      <a class="button primary" href="https://github.com/kubishi/americasnlp-2026-shared-task">Source on GitHub</a>
-      <a class="button" href="#results">Aggregate results</a>
-      <a class="button" href="#explorer">Dev explorer</a>
-      <a class="button" href="#submission">Test submission</a>
+      <a class="button primary" href="#final-results">🏆 Final results</a>
+      <a class="button" href="https://github.com/kubishi/americasnlp-2026-shared-task">Source on GitHub</a>
+      <a class="button" href="#results">Dev results</a>
+      <a class="button" href="#submission">Test predictions</a>
     </p>
   </div>
 </header>
@@ -189,18 +189,48 @@
   </div>
 </section>
 
+<section id="final-results">
+  <div class="container narrow">
+    <h2>Final results</h2>
+    <p class="caption">
+      Shared-task organizers ranked systems by ChrF++ first, then took
+      the top-5 (one per team) per language to human evaluation. We
+      (team <code>yaduha</code>) won 2 of 5 languages on human eval
+      (Bribri, Nahuatl) and placed top-3 on Maya. We didn't crack the
+      top-5 ChrF for Guaraní or Wixárika so they weren't human-evaluated.
+      RAN = <a href="https://ran.kubishi.com/">Resource Abundance
+      Notation</a> (speakers / monolingual / bilingual partners,
+      order of magnitude).
+    </p>
+    <div class="table-wrap">
+      <table id="final-results-table">
+        <thead>
+          <tr>
+            <th>Language</th>
+            <th>RAN</th>
+            <th class="num">ChrF rank</th>
+            <th class="num">ChrF score</th>
+            <th class="num">Human rank</th>
+            <th class="num">Human rating</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 <section id="submission">
   <div class="container wide">
-    <h2>Test submission</h2>
+    <h2>Test submission — per-row predictions</h2>
     <p class="caption">
-      Per-row predictions on the 990-image test split, produced by the
+      Per-row predictions on the 981-image test split, produced by our
       submitted configuration: <strong>gpt-5 one-step</strong>
       (single VLM call with image + Pydantic schema, structured output)
       paired with <code>gpt-4o-mini</code> back-translation from the
-      structured intermediate. No gold captions on the test split, so
-      ChrF can't be reported here — judge fluency by reading the
-      back-translation alongside the image. Per-column filter + click-
-      sort, same as the dev explorer.
+      structured intermediate. Per-row ChrF and human-eval scores
+      aren't published — only per-team aggregates (see Final results
+      above). Per-column filter + click-sort.
     </p>
 
     <p class="explorer-summary" id="submission-summary"></p>

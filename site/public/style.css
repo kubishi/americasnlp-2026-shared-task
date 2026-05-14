@@ -468,6 +468,22 @@ dialog#detail-modal::backdrop {
 .english-h4 { color: var(--fg-soft); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; }
 .english-h4.hidden, .english.hidden, #detail-english.hidden { display: none; }
 
+/* Final results table */
+#final-results-table td.ran-cell code {
+  font-size: 0.85rem;
+}
+.rank-pill {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
 /* small touches */
 mark.match {
   background: #fff3a3;
