@@ -1,4 +1,4 @@
-# AmericasNLP 2026 — LLM-Assisted RBMT for Image Captioning
+# AmericasNLP 2026 Shared Task: LLM-Assisted RBMT for Image Captioning
 
 Entry in the [AmericasNLP 2026 Shared Task on Cultural Image Captioning](https://americasnlp.org/2026_st.html).
 
@@ -8,25 +8,11 @@ Entry in the [AmericasNLP 2026 Shared Task on Cultural Image Captioning](https:/
 image → [VLM with strict-Literal schema] → SentenceList → Sentence.__str__() → target
 ```
 
-For each target language, an agent writes a Yaduha-compatible Pydantic grammar package. Lemma fields are typed `Literal[...]` enums drawn from the package's vocab list, so a VLM emits structured `SentenceList` JSON that Python deterministically renders into the target language. No training, no fine-tuning, no silent OOV — Pydantic rejects out-of-vocabulary lemmas at validation time.
+For each target language, an agent writes a Yaduha-compatible Pydantic grammar package. Lemma fields are typed `Literal[...]` enums drawn from the package's vocab list, so a VLM emits structured `SentenceList` JSON that Python deterministically renders into the target language.
 
-Proper nouns escape through a narrow `proper_noun: Optional[str]` slot on `Noun`.
+## System Description and Results
 
-## Final submission
-
-**gpt-5 `one-step`** (single VLM call: image + schema → `SentenceList`) on all 5 languages.
-
-Dev results (ChrF++, N=50):
-
-| iso | baseline | ours |
-|---|--:|--:|
-| bzd | 7.57 | 9.62 |
-| grn | 20.82 | 18.57 |
-| yua | — | 25.09 |
-| nlv | 11.53 | 22.89 |
-| hch | 17.77 | 16.08 |
-
-**+2.44 ChrF** vs the organizer baseline on the 4 comparable languages, plus full yua coverage. Submission cost: ~$29 (990 rows).
+See [anlp26.kubshi.com](https://anlp26.kubishi.com) for the full system description, dev results, and test submission details. In brief:
 
 ## Usage
 
@@ -46,5 +32,3 @@ uv run americasnlp evaluate --language bribri --method one-step --vlm gpt-5
 uv run americasnlp submit --language bribri --method one-step --vlm gpt-5 \
     --output results/submissions/bribri.jsonl
 ```
-
-See [`DESIGN.md`](DESIGN.md) for the thesis and [`docs/bootstrap_language.md`](docs/bootstrap_language.md) for the generator workflow.

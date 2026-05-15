@@ -15,9 +15,9 @@
     <h1>LLM-Assisted RBMT for Image Captioning<br/>in Indigenous&nbsp;Languages</h1>
     <p class="tagline">
       AmericasNLP 2026 Shared Task entry. An agent reads each language's
-      dev captions plus open-web references and writes a Yaduha-compatible
+      dev captions plus open-web references and writes a <a href="https://github.com/kubishi/yaduha">Yaduha</a>-compatible
       Pydantic grammar package. A vision-language model produces an English
-      caption; that grammar deterministically renders it into the target
+      caption that the grammar deterministically renders it into the target
       language. <strong>No training, no fine-tuning, no parallel
       corpora.</strong>
     </p>
@@ -53,9 +53,10 @@
       ever generating target-language tokens directly. The system also
       covers Yucatec Maya, which the organizer&rsquo;s NLLB pipeline does
       not. Lemma fields are typed as Pydantic <code>Literal[...]</code>
-      enums &mdash; the LLM cannot emit OOV terms, so output is grammatical
-      by construction. A narrowly-prompted <code>proper_noun</code>
-      escape hatch carries genuine named entities through verbatim.
+      enums. The LLM cannot emit OOV terms, so output is grammatical
+      by construction (insofar as the LLM-generated grammar is correct). 
+      A narrowly-prompted <code>proper_noun</code> escape hatch carries 
+      genuine named entities through verbatim.
     </p>
   </div>
 </section>
@@ -68,14 +69,17 @@
       Pydantic schema and emits a <code>SentenceList</code> JSON via
       OpenAI's native structured outputs API. The target string is
       synthesized by Python from each <code>Sentence</code>'s
-      <code>__str__()</code> &mdash; <em>the model never sees or generates
+      <code>__str__()</code>. Again, <em>the model never sees or generates
       target-language tokens</em>.
     </p>
     <pre class="diagram">
    image
      │  gpt-5 with strict-Literal schema (OpenAI structured outputs)
      ▼
-   list[Sentence]   ── Sentence.__str__() (deterministic Python) ──►  target caption
+   list[Sentence]
+     │  Sentence.__str__() (deterministic Python)
+     ▼  
+   target caption
     </pre>
     <p>
       The <code>yaduha-{iso}</code> packages are authored by a coding agent
@@ -93,15 +97,12 @@
 
 <section id="results">
   <div class="container">
-    <h2>Aggregate results &mdash; dev split, ChrF++</h2>
+    <h2>Aggregate results: dev split, ChrF++</h2>
     <p class="caption">
       Per-language mean ChrF++ on the 50-row dev split. Each cell is the
       mean of per-row ChrF++ scores. The <strong>★ rows</strong> are
-      our configurations (the primary submission config is highlighted);
-      the bottom row is the few-shot direct-prompting baseline. All sweeps
-      use the new strict-Literal schema, no silent OOV stripping, and
-      gpt-4o-mini for back-translation. Click any column header to see
-      how a configuration translates the actual images.
+      our configurations (the primary submission config is highlighted).
+      The bottom row is the few-shot direct-prompting baseline.
     </p>
     <div class="table-wrap">
       <table id="agg-table">
@@ -117,10 +118,8 @@
     </div>
     <p class="caption footnote">
       <sup>*</sup>Mean over the 4 ChrF++-comparable languages
-      (bzd / grn / nlv / hch); the organizer&rsquo;s NLLB baseline does not
+      (bzd / grn / nlv / hch). The organizer&rsquo;s NLLB baseline does not
       cover yua, so we exclude yua from the mean for direct comparison.
-      Organizer baseline reference (Qwen3-VL &rarr; NLLB):
-      <strong>14.42</strong> over the same four languages.
     </p>
   </div>
 </section>
@@ -132,8 +131,8 @@
       Inspect every dev image and how each configuration captioned it.
       Each column header has a search box (per-column filter) and is
       click-sortable. Click a row to see the full image alongside the
-      predicted caption, back-translated English, and &mdash; for the
-      pipeline method &mdash; the English intermediate the VLM produced.
+      predicted caption, back-translated English, and (for the
+      pipeline methods) the English intermediate the VLM produced.
     </p>
 
     <p class="explorer-summary" id="explorer-summary"></p>
@@ -196,7 +195,7 @@
       Shared-task organizers ranked systems by ChrF++ first, then took
       the top-5 (one per team) per language to human evaluation. We
       (team <code>yaduha</code>) won 2 of 5 languages on human eval
-      (Bribri, Nahuatl) and placed top-3 on Maya. We didn't crack the
+      (Bribri, Nahuatl) and placed top-3 on Maya. We didn't place in the
       top-5 ChrF for Guaraní or Wixárika so they weren't human-evaluated.
       RAN = <a href="https://ran.kubishi.com/">Resource Abundance
       Notation</a> (speakers / monolingual / bilingual partners,
@@ -222,15 +221,13 @@
 
 <section id="submission">
   <div class="container wide">
-    <h2>Test submission — per-row predictions</h2>
+    <h2>Test submission per-row predictions</h2>
     <p class="caption">
       Per-row predictions on the 981-image test split, produced by our
       submitted configuration: <strong>gpt-5 one-step</strong>
       (single VLM call with image + Pydantic schema, structured output)
       paired with <code>gpt-4o-mini</code> back-translation from the
-      structured intermediate. Per-row ChrF and human-eval scores
-      aren't published — only per-team aggregates (see Final results
-      above). Per-column filter + click-sort.
+      structured intermediate.
     </p>
 
     <p class="explorer-summary" id="submission-summary"></p>
@@ -277,18 +274,12 @@
         the schema; gpt-5's structured-outputs API enforces the
         <code>Literal[...]</code> lemma constraint at validation time.</li>
       <li><strong>Pick the best config per language</strong> from the
-        dev matrix above &mdash; gpt-5 one-step wins on grn / yua / nlv
-        / hch; sonnet-vl + gpt-4o (two-step) edges it out on bzd.</li>
+        dev matrix above. We chose the gpt-5 one-step config for all languages
+        for its simplicity and strong performance.
       <li><strong>Submit on the test split</strong>:
         <code>americasnlp submit --language bribri --method one-step
-        --vlm gpt-5 --output …</code>.</li>
+        --vlm gpt-5 --output ...</code>.</li>
     </ol>
-    <p>
-      The full submission pipeline is the same Python module run on every
-      image: no per-image tuning, no inference-time ensembling. The
-      contribution is the auto-generated grammar plus the strict
-      schema-enforced rendering.
-    </p>
   </div>
 </section>
 
@@ -296,9 +287,12 @@
   <div class="container narrow">
     <p>
       Project page for the AmericasNLP&nbsp;2026 Shared Task entry from
-      Loyola Marymount University. Source code (this site, the captioner,
+      the Loyola Marymount University <a href="https://research.kubishi.com">Kubishi Research Group</a> and 
+      the University of Southern California <a href="https://anrg.usc.edu">Autonomous Networks Research Group</a>. 
+      Source code (this site, the captioner,
       the generator agent, and all five <code>yaduha-{iso}</code> packages)
-      is open-source on GitHub. The framework lives at
+      is open-source on GitHub at <a href="https://github.com/kubishi/americasnlp-2026-shared-task">kubishi/americasnlp-2026-shared-task</a>. 
+      The framework is available at
       <a href="https://github.com/kubishi/yaduha-2"><code>kubishi/yaduha</code></a>;
       the OVP reference at
       <a href="https://github.com/kubishi/yaduha-ovp"><code>kubishi/yaduha-ovp</code></a>.
